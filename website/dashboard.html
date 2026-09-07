@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — AutoSave</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              400: '#a78bfa',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 antialiased min-h-screen">
+
+  <!-- Top Nav -->
+  <header class="border-b border-zinc-800 bg-zinc-950/90 backdrop-blur sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+      <div class="flex items-center gap-6">
+        <a href="index.html" class="flex items-center gap-2 font-bold text-lg">
+          <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-500 to-cyan-400 flex items-center justify-center text-white text-xs font-bold">A</div>
+          AutoSave
+        </a>
+        <nav class="hidden md:flex items-center gap-1 text-sm">
+          <a href="#" class="px-3 py-1.5 rounded-lg bg-zinc-800 text-white font-medium">Dashboard</a>
+          <a href="#strategies" class="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 transition">Strategies</a>
+          <a href="#activity" class="px-3 py-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-900 transition">Activity</a>
+        </nav>
+      </div>
+      <div class="flex items-center gap-3">
+        <button class="hidden sm:inline-flex items-center gap-2 text-sm text-zinc-400 hover:text-white px-3 py-1.5 rounded-lg hover:bg-zinc-900 transition">
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+          7xK...9pQ
+        </button>
+        <button onclick="openModal()" class="inline-flex items-center justify-center rounded-lg bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold px-4 py-2 transition">
+          + Create Strategy
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+
+    <div class="mb-8">
+      <h1 class="text-2xl font-bold mb-1">Portfolio</h1>
+      <p class="text-zinc-500 text-sm">Overview of your automated positions and savings</p>
+    </div>
+
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+      <div class="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-5">
+        <div class="text-sm text-zinc-400 mb-1">Total Portfolio</div>
+        <div class="text-2xl sm:text-3xl font-bold tracking-tight">$4,286.42</div>
+        <div class="text-xs text-emerald-400 mt-2 flex items-center gap-1">
+          <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+          +12.4% this month
+        </div>
+      </div>
+      <div class="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-5">
+        <div class="text-sm text-zinc-400 mb-1">AutoSaved</div>
+        <div class="text-2xl sm:text-3xl font-bold tracking-tight text-brand-400">$1,240.00</div>
+        <div class="text-xs text-zinc-500 mt-2">Across 2 plans</div>
+      </div>
+      <div class="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-5">
+        <div class="text-sm text-zinc-400 mb-1">Fees Earned</div>
+        <div class="text-2xl sm:text-3xl font-bold tracking-tight text-emerald-400">$186.42</div>
+        <div class="text-xs text-zinc-500 mt-2">Lifetime</div>
+      </div>
+      <div class="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-5">
+        <div class="text-sm text-zinc-400 mb-1">LP Value</div>
+        <div class="text-2xl sm:text-3xl font-bold tracking-tight">$2,860.00</div>
+        <div class="text-xs text-zinc-500 mt-2">1 active position</div>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-3 gap-8">
+      
+      <div class="lg:col-span-2 space-y-6" id="strategies">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg font-semibold">Active Strategies</h2>
+          <button onclick="openModal()" class="text-sm text-brand-400 hover:text-brand-300 font-medium">+ New</button>
+        </div>
+
+        <div class="space-y-4">
+          <div class="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5 hover:border-zinc-700 transition">
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl bg-orange-500/15 flex items-center justify-center">
+                  <span class="text-orange-400 font-bold text-sm">SOL</span>
+                </div>
+                <div>
+                  <div class="font-semibold">DCA · SOL</div>
+                  <div class="text-sm text-zinc-500">Buy $25 every week</div>
+                </div>
+              </div>
+              <span class="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400 bg-emerald-400/10 px-2.5 py-1 rounded-full">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Active
+              </span>
+            </div>
+            <div class="grid grid-cols-3 gap-4 text-sm">
+              <div>
+                <div class="text-zinc-500 text-xs mb-0.5">Next run</div>
+                <div class="font-medium">Mon, 09:00 UTC</div>
+              </div>
+              <div>
+                <div class="text-zinc-500 text-xs mb-0.5">Total spent</div>
+                <div class="font-medium">$325.00</div>
+              </div>
+              <div>
+                <div class="text-zinc-500 text-xs mb-0.5">Limit left</div>
+                <div class="font-medium">$675.00</div>
+              </div>
+            </div>
+            <div class="mt-4 flex gap-2">
+              <button class="text-xs font-medium px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition">Pause</button>
+              <button class="text-xs font-medium px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition">Edit</button>
+              <button class="text-xs font-medium px-3 py-1.5 rounded-lg text-red-400 hover:bg-red-400/10 transition">Delete</button>
+            </div>
+          </div>
+
+          <div class="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5 hover:border-zinc-700 transition">
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl bg-blue-500/15 flex items-center justify-center">
+                  <span class="text-blue-400 font-bold text-xs">LP</span>
+                </div>
+                <div>
+                  <div class="font-semibold">Liquidity · SOL / USDC</div>
+                  <div class="text-sm text-zinc-500">$1,500 initial · Raydium</div>
+                </div>
+              </div>
+              <span class="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400 bg-emerald-400/10 px-2.5 py-1 rounded-full">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Active
+              </span>
+            </div>
+            <div class="grid grid-cols-3 gap-4 text-sm">
+              <div>
+                <div class="text-zinc-500 text-xs mb-0.5">Current value</div>
+                <div class="font-medium">$1,612.40</div>
+              </div>
+              <div>
+                <div class="text-zinc-500 text-xs mb-0.5">Unclaimed fees</div>
+                <div class="font-medium text-emerald-400">$48.20</div>
+              </div>
+              <div>
+                <div class="text-zinc-500 text-xs mb-0.5">Reinvest</div>
+                <div class="font-medium">70%</div>
+              </div>
+            </div>
+            <div class="mt-4 flex gap-2">
+              <button class="text-xs font-medium px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition">Claim fees</button>
+              <button class="text-xs font-medium px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition">Add liquidity</button>
+              <button class="text-xs font-medium px-3 py-1.5 rounded-lg text-red-400 hover:bg-red-400/10 transition">Close</button>
+            </div>
+          </div>
+
+          <div class="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5 hover:border-zinc-700 transition">
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center gap-3">
+                <div class="w-11 h-11 rounded-xl bg-amber-500/15 flex items-center justify-center">
+                  <span class="text-amber-400 font-bold text-sm">%</span>
+                </div>
+                <div>
+                  <div class="font-semibold">Fee Saver</div>
+                  <div class="text-sm text-zinc-500">25% of LP fees → AutoSave</div>
+                </div>
+              </div>
+              <span class="inline-flex items-center gap-1.5 text-xs font-medium text-emerald-400 bg-emerald-400/10 px-2.5 py-1 rounded-full">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Active
+              </span>
+            </div>
+            <div class="grid grid-cols-3 gap-4 text-sm">
+              <div>
+                <div class="text-zinc-500 text-xs mb-0.5">Routed so far</div>
+                <div class="font-medium">$46.60</div>
+              </div>
+              <div>
+                <div class="text-zinc-500 text-xs mb-0.5">Compound</div>
+                <div class="font-medium">60%</div>
+              </div>
+              <div>
+                <div class="text-zinc-500 text-xs mb-0.5">Available</div>
+                <div class="font-medium">15%</div>
+              </div>
+            </div>
+            <div class="mt-4 flex gap-2">
+              <button class="text-xs font-medium px-3 py-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition">Edit split</button>
+              <button class="text-xs font-medium px-3 py-1.5 rounded-lg text-red-400 hover:bg-red-400/10 transition">Disable</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-6">
+        <div class="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5">
+          <h3 class="font-semibold mb-4">Quick Create</h3>
+          <div class="space-y-2">
+            <button onclick="openModal('save')" class="w-full text-left px-4 py-3 rounded-xl bg-zinc-800/60 hover:bg-zinc-800 transition flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-brand-500/20 flex items-center justify-center text-brand-400 text-sm">💰</div>
+              <div>
+                <div class="text-sm font-medium">Savings Plan</div>
+                <div class="text-xs text-zinc-500">Recurring SOL / USDC</div>
+              </div>
+            </button>
+            <button onclick="openModal('dca')" class="w-full text-left px-4 py-3 rounded-xl bg-zinc-800/60 hover:bg-zinc-800 transition flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-cyan-500/20 flex items-center justify-center text-cyan-400 text-sm">📈</div>
+              <div>
+                <div class="text-sm font-medium">DCA Buy</div>
+                <div class="text-xs text-zinc-500">Auto-buy any token</div>
+              </div>
+            </button>
+            <button onclick="openModal('lp')" class="w-full text-left px-4 py-3 rounded-xl bg-zinc-800/60 hover:bg-zinc-800 transition flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400 text-sm">💧</div>
+              <div>
+                <div class="text-sm font-medium">Liquidity Pool</div>
+                <div class="text-xs text-zinc-500">Provide & manage LP</div>
+              </div>
+            </button>
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5" id="activity">
+          <h3 class="font-semibold mb-4">Recent Activity</h3>
+          <div class="space-y-4 text-sm">
+            <div class="flex gap-3">
+              <div class="w-8 h-8 rounded-full bg-emerald-500/15 flex-shrink-0 flex items-center justify-center text-emerald-400 text-xs">✓</div>
+              <div>
+                <div class="font-medium">DCA executed</div>
+                <div class="text-zinc-500">Bought $25 SOL · 2h ago</div>
+              </div>
+            </div>
+            <div class="flex gap-3">
+              <div class="w-8 h-8 rounded-full bg-brand-500/15 flex-shrink-0 flex items-center justify-center text-brand-400 text-xs">$</div>
+              <div>
+                <div class="font-medium">Fees claimed</div>
+                <div class="text-zinc-500">$12.40 · 60% compounded · 1d ago</div>
+              </div>
+            </div>
+            <div class="flex gap-3">
+              <div class="w-8 h-8 rounded-full bg-blue-500/15 flex-shrink-0 flex items-center justify-center text-blue-400 text-xs">+</div>
+              <div>
+                <div class="font-medium">LP position opened</div>
+                <div class="text-zinc-500">SOL/USDC · $1,500 · 3d ago</div>
+              </div>
+            </div>
+            <div class="flex gap-3">
+              <div class="w-8 h-8 rounded-full bg-orange-500/15 flex-shrink-0 flex items-center justify-center text-orange-400 text-xs">↻</div>
+              <div>
+                <div class="font-medium">AutoSave deposit</div>
+                <div class="text-zinc-500">$50 USDC weekly · 5d ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Create Strategy Modal -->
+  <div id="modal" class="fixed inset-0 z-50 hidden">
+    <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" onclick="closeModal()"></div>
+    <div class="absolute inset-x-4 top-[10%] md:inset-x-auto md:left-1/2 md:-translate-x-1/2 md:w-full md:max-w-lg bg-zinc-900 border border-zinc-700 rounded-2xl shadow-2xl p-6 max-h-[80vh] overflow-y-auto">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold" id="modal-title">Create Strategy</h2>
+        <button onclick="closeModal()" class="text-zinc-400 hover:text-white p-1">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="flex gap-2 mb-6 border-b border-zinc-800 pb-3">
+        <button onclick="setTab('save')" id="tab-save" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium bg-brand-600 text-white">Savings</button>
+        <button onclick="setTab('dca')" id="tab-dca" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium text-zinc-400 hover:text-white">DCA</button>
+        <button onclick="setTab('lp')" id="tab-lp" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium text-zinc-400 hover:text-white">Liquidity</button>
+      </div>
+
+      <div id="form-save" class="space-y-4">
+        <div>
+          <label class="block text-sm text-zinc-400 mb-1.5">Asset</label>
+          <select class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand-500">
+            <option>SOL</option>
+            <option>USDC</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-zinc-400 mb-1.5">Amount per period</label>
+          <input type="number" placeholder="25" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand-500" />
+        </div>
+        <div>
+          <label class="block text-sm text-zinc-400 mb-1.5">Cadence</label>
+          <select class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand-500">
+            <option>Daily</option>
+            <option selected>Weekly</option>
+            <option>Monthly</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-zinc-400 mb-1.5">Maximum total limit</label>
+          <input type="number" placeholder="1000" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand-500" />
+        </div>
+      </div>
+
+      <div id="form-dca" class="space-y-4 hidden">
+        <div>
+          <label class="block text-sm text-zinc-400 mb-1.5">Token to buy</label>
+          <input type="text" placeholder="e.g. BONK, JUP, WIF..." class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand-500" />
+        </div>
+        <div>
+          <label class="block text-sm text-zinc-400 mb-1.5">Amount (USDC)</label>
+          <input type="number" placeholder="10" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand-500" />
+        </div>
+        <div>
+          <label class="block text-sm text-zinc-400 mb-1.5">Frequency</label>
+          <select class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand-500">
+            <option>Every day</option>
+            <option selected>Every Monday</option>
+            <option>Every week</option>
+            <option>Every month</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm text-zinc-400 mb-1.5">Max total allocation</label>
+          <input type="number" placeholder="500" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand-500" />
+        </div>
+      </div>
+
+      <div id="form-lp" class="space-y-4 hidden">
+        <div>
+          <label class="block text-sm text-zinc-400 mb-1.5">Token pair</label>
+          <input type="text" placeholder="SOL / USDC" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand-500" />
+        </div>
+        <div>
+          <label class="block text-sm text-zinc-400 mb-1.5">Initial liquidity (USD)</label>
+          <input type="number" placeholder="1500" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand-500" />
+        </div>
+        <div>
+          <label class="block text-sm text-zinc-400 mb-1.5">Fee reinvest %</label>
+          <input type="number" placeholder="70" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand-500" />
+        </div>
+        <div>
+          <label class="block text-sm text-zinc-400 mb-1.5">Venue</label>
+          <select class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-brand-500">
+            <option>Raydium</option>
+            <option>Orca</option>
+            <option>Meteora</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="mt-8 flex gap-3">
+        <button onclick="closeModal()" class="flex-1 py-2.5 rounded-xl border border-zinc-700 text-sm font-medium hover:bg-zinc-800 transition">Cancel</button>
+        <button onclick="createStrategy()" class="flex-1 py-2.5 rounded-xl bg-brand-600 hover:bg-brand-500 text-white text-sm font-semibold transition">Create Strategy</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function openModal(tab = 'save') {
+      document.getElementById('modal').classList.remove('hidden');
+      setTab(tab);
+    }
+    function closeModal() {
+      document.getElementById('modal').classList.add('hidden');
+    }
+    function setTab(tab) {
+      ['save', 'dca', 'lp'].forEach(t => {
+        document.getElementById('form-' + t).classList.toggle('hidden', t !== tab);
+        const btn = document.getElementById('tab-' + t);
+        if (t === tab) {
+          btn.className = 'tab-btn px-4 py-2 rounded-lg text-sm font-medium bg-brand-600 text-white';
+        } else {
+          btn.className = 'tab-btn px-4 py-2 rounded-lg text-sm font-medium text-zinc-400 hover:text-white';
+        }
+      });
+      const titles = { save: 'Create Savings Plan', dca: 'Create DCA Strategy', lp: 'Create Liquidity Position' };
+      document.getElementById('modal-title').textContent = titles[tab];
+    }
+    function createStrategy() {
+      alert('Strategy created! (This is a demo UI — connect wallet & backend to make it live)');
+      closeModal();
+    }
+    document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+  </script>
+</body>
+</html>

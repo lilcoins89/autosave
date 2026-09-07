@@ -2,27 +2,35 @@
 
 **Solana-powered DeFi automation for savings, DCA, liquidity provision, and fee management.**
 
-AutoSave turns repetitive on-chain work into simple rules:  
-“Tell AutoSave what you want to happen with your money, and it handles the rest.”
+> Tell AutoSave what you want to happen with your money, and it handles the repetitive on-chain work.
 
-- Automated savings (SOL / USDC)
-- Dollar-cost averaging (DCA) into any token
-- Liquidity pool creation & management
-- Automatic fee claiming, splitting, and compounding
+## Live Website
 
-Built on **Solana Agent Kit** + **Solana Pay Kit** primitives with a custom AutoSave Engine for scheduling, limits, and allocation logic.
+- **Landing page**: [website/index.html](website/index.html)
+- **Dashboard demo**: [website/dashboard.html](website/dashboard.html)
 
-## Status
-Early product definition stage. Full Product Requirements Document is available in [`docs/PRD.md`](docs/PRD.md).
+Open the HTML files directly in a browser or serve the `website/` folder (e.g. with GitHub Pages, Vercel, or any static host).
 
-## Quick Links
+## Documentation
+
 - [Product Requirements Document](docs/PRD.md)
 - [Architecture Overview](docs/ARCHITECTURE.md)
 - [User Stories](docs/USER_STORIES.md)
 - [Roadmap](docs/ROADMAP.md)
+- [Competitive Landscape](docs/COMPETITIVE_LANDSCAPE.md)
 
-## Vision
-Make advanced Solana DeFi strategies feel as simple as a modern savings or investment app — non-custodial, transparent, and fully automated.
+## Features (Demo)
+
+- Beautiful dark landing page with clear value proposition
+- Interactive dashboard matching the product vision
+- Create Strategy modal (Savings / DCA / Liquidity)
+- Portfolio metrics, active strategies, and activity feed
+
+## Tech Notes
+
+The current website is a high-fidelity static prototype (Tailwind CSS via CDN).  
+Next step: migrate to Next.js + Solana Wallet Adapter + real on-chain integration using Solana Agent Kit.
 
 ## License
-MIT (to be confirmed)
+
+MIT
