@@ -1,38 +1,27 @@
-# AutoSave — High-Level Roadmap
+# Roadmap (Updated)
 
-## Phase 0 — Foundation (Current)
-- Complete PRD and architecture definition
-- Repository and documentation scaffolding
-- Design system & core UI wireframes
+## Phase 0 — Foundation
+- PRD v2, architecture, branding alignment around AURA
 
-## Phase 1 — MVP
-- Wallet connection
-- AutoSave (savings) plans
-- Time-based DCA
-- Basic LP creation + fee split configuration
-- Core dashboard
-- Activity history
-- Pause / delete controls
+## Phase 1 — Core Intelligence MVP
+- Capital Policy UI + basic maintenance logic
+- Opportunity Score v1 (core dimensions)
+- Safety Engine with Kill Switch and portfolio limits
+- Dashboard showing policy, scores, and safety status
 
-## Phase 2 — Reliability & Polish
-- Robust execution engine
-- Better error handling and notifications
-- Expanded LP venue support
-- Performance and UX improvements
-- Security review / audits
+## Phase 2 — Autonomous Layer
+- Opportunity Sniper
+- Improved scoring models
+- Better rebalancing intelligence
+- Full activity & decision transparency
 
-## Phase 3 — Advanced Automation
-- Price-triggered and smarter DCA rules
-- More sophisticated fee strategies
-- Portfolio-level insights and suggestions
-- Optional notifications (Telegram, Discord, email)
+## Phase 3 — Scale & Polish
+- More data sources and refined risk models
+- Notifications
+- Advanced LP strategies under policy
+- Performance & gas optimization
 
-## Phase 4 — Growth & Ecosystem
-- Mobile / PWA experience
-- Deeper integrations with Solana ecosystem protocols
-- Potential community or governance features (if desired)
-- Explore sustainable fee model for the protocol/app
-
----
-
-This roadmap is directional and will be refined based on user feedback and technical discoveries.
+## Phase 4 — Ecosystem
+- Mobile / PWA
+- Deeper protocol integrations
+- Optional governance / fee model exploration

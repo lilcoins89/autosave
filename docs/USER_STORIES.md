@@ -1,37 +1,24 @@
-# AutoSave — User Stories
+# AutoSave + AURA — User Stories (v2)
 
-## Epic 1: Onboarding & Wallet
-- As a user, I can connect my Solana wallet so that AutoSave can read my balances and prepare transactions.
-- As a user, I can disconnect my wallet at any time.
+## Epic: Smart Save (Capital Policy)
+- As a user I can deposit capital and define percentage targets for Reserve, AutoBuy, Liquidity, Trading, and Opportunity Reserve.
+- As a user I can see actual vs target allocation at any time.
+- As a user I trust that AURA will not drain my Reserve just because other buckets are underweight when conditions are risky.
 
-## Epic 2: AutoSave (Savings) Plans
-- As a user, I can create a recurring savings plan that moves a fixed amount of SOL or USDC on a schedule.
-- As a user, I can set a maximum total budget for a savings plan so I never overspend.
-- As a user, I can pause or delete a savings plan.
-- As a user, I can see the next scheduled execution and history of past saves.
+## Epic: AutoBuy Engine
+- As a user I can set a minimum Opportunity Score below which no buys occur.
+- As a user I can see the full score breakdown (Liquidity, Volume, Momentum, Execution, Risk) for any evaluated token.
+- As a user I receive a clear “NO TRADE” decision with reasons when the score is insufficient.
 
-## Epic 3: Auto-Buy (DCA)
-- As a user, I can create a DCA strategy to buy a fixed amount of any token on a recurring schedule.
-- As a user, I can set slippage tolerance and a maximum total allocation.
-- As a user, I can pause, edit, or delete my DCA strategies.
-- As a user, I can see every executed buy with transaction links.
+## Epic: Safety Engine
+- As a user I can configure Daily Loss Limit, Max Position Size, Max Slippage, Min Liquidity, and other hard limits.
+- As a user I know that every trade is simulated and checked before execution.
+- As a user I can activate a Kill Switch that immediately stops new risk-increasing trades.
 
-## Epic 4: Liquidity Provision
-- As a user, I can create a liquidity position for a chosen token pair with a defined capital allocation.
-- As a user, I can configure how future fees from that position should be handled.
-- As a user, I can view the current value of my LP positions and unclaimed fees.
+## Epic: Opportunity Sniper
+- As a user I can enable autonomous opportunity monitoring that only uses my Opportunity Reserve (or other allowed capital).
+- As a user I understand that the Sniper only fires when multiple independent conditions + Safety + Score all agree.
+- As a user I can review every Sniper evaluation and decision after the fact.
 
-## Epic 5: Fee Management & Compounding
-- As a user, I can set percentage splits for earned fees (compound / AutoSave / available balance).
-- As a user, I want fees to be claimed and processed automatically according to my rules without manual intervention.
-- As a user, I can see a clear history of fee claims and how they were allocated.
-
-## Epic 6: Dashboard & Portfolio
-- As a user, I can see my total portfolio value, AutoSaved amount, fees earned, and LP value at a glance.
-- As a user, I can see all my active strategies and their status.
-- As a user, I can create a new strategy from the main dashboard with one click.
-
-## Epic 7: Safety & Control
-- As a user, I can withdraw available balances at any time.
-- As a user, I can pause all automation instantly if needed.
-- As a user, I receive clear warnings about risks (impermanent loss, smart contract risk, etc.).
+## Epic: Classic Automations
+- Time-based savings, LP provision, and fee compounding continue to work and now sit under the capital policy and Safety Engine.
