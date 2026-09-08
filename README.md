@@ -1,35 +1,32 @@
-# AutoSave
+# AutoSave — Powered by AURA
 
-**Solana-powered DeFi automation for savings, DCA, liquidity provision, and fee management.**
+**Intelligent Solana capital management.**
 
-> Tell AutoSave what you want to happen with your money, and it handles the repetitive on-chain work.
+Define your capital policy once. AURA maintains allocations, scores every opportunity, enforces hard safety limits, and only deploys capital when conditions are actually good.
 
-## Live Website
+## Live Demo
 
-- **Landing page**: [website/index.html](website/index.html)
-- **Dashboard demo**: [website/dashboard.html](website/dashboard.html)
+- [Landing page](website/index.html)
+- [Dashboard](website/dashboard.html)
 
-Open the HTML files directly in a browser or serve the `website/` folder (e.g. with GitHub Pages, Vercel, or any static host).
+## Core Pillars (v2)
+
+1. **Smart Save** — Capital policy engine (Reserve / AutoBuy / Liquidity / Trading / Opportunity Reserve)
+2. **AutoBuy Engine** — Opportunity Score instead of blind timers
+3. **Safety Engine** — Token + Execution + Portfolio checks + Kill Switch (the heart of the product)
+4. **Opportunity Sniper** — Multi-condition autonomous detection, never reckless
 
 ## Documentation
 
-- [Product Requirements Document](docs/PRD.md)
-- [Architecture Overview](docs/ARCHITECTURE.md)
+- [PRD v2](docs/PRD.md)
+- [Architecture](docs/ARCHITECTURE.md)
 - [User Stories](docs/USER_STORIES.md)
 - [Roadmap](docs/ROADMAP.md)
-- [Competitive Landscape](docs/COMPETITIVE_LANDSCAPE.md)
 
-## Features (Demo)
+## Philosophy
 
-- Beautiful dark landing page with clear value proposition
-- Interactive dashboard matching the product vision
-- Create Strategy modal (Savings / DCA / Liquidity)
-- Portfolio metrics, active strategies, and activity feed
-
-## Tech Notes
-
-The current website is a high-fidelity static prototype (Tailwind CSS via CDN).  
-Next step: migrate to Next.js + Solana Wallet Adapter + real on-chain integration using Solana Agent Kit.
+Speed without intelligence is just risk.  
+AURA puts intelligence and capital protection first.
 
 ## License
 
