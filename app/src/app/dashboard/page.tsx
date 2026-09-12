@@ -18,6 +18,7 @@ import { ExecutorPanel } from "@/components/ExecutorPanel";
 import { AuraEnginePanel } from "@/components/AuraEnginePanel";
 import { StartEngineButton } from "@/components/StartEngineButton";
 import { IntelligencePanel } from "@/components/IntelligencePanel";
+import { SolanaStatusCard } from "@/components/SolanaStatusCard";
 import { useSolanaBalances } from "@/hooks/useSolanaBalances";
 import { usePortfolioLedger } from "@/hooks/usePortfolioLedger";
 import { useAutoStrategies } from "@/hooks/useAutoStrategies";
@@ -66,7 +67,7 @@ export default function DashboardPage() {
 
   // Micro-strategy paper equity ($10 start)
   const [microActive, setMicroActive] = useState(false);
-  const [microEquity, setMicroEquity] = useState(MICRO_STRATEGY.startingCapitalUsd);
+  const [microEquity, setMicroEquity] = useState<number>(MICRO_STRATEGY.startingCapitalUsd);
   const [tradingSessionId, setTradingSessionId] = useState<string | null>(null);
   const [tradingConnectionState, setTradingConnectionState] = useState<"idle" | "connecting" | "connected" | "error">("idle");
   const [tradingConnectionMessage, setTradingConnectionMessage] = useState("");
@@ -192,7 +193,7 @@ export default function DashboardPage() {
           maxLossPerTradeUsd: MICRO_STRATEGY.maxLossPerTradeUsd,
           reserveUsd: MICRO_STRATEGY.reserveUsd,
           targetEquityUsd: MICRO_STRATEGY.targetEquityUsd,
-          automaticTpSl: MICRO_STRATEGY.automaticTpSl,
+          automaticTpSl: MICRO_STRATEGY.autoTpsl,
           killSwitchEnabled: MICRO_STRATEGY.killSwitchEnabled,
         },
       }),
@@ -450,8 +451,9 @@ export default function DashboardPage() {
         />
         </div>
 
-        <div className="mb-6">
+        <div className="mb-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
           <IntelligencePanel address={publicKey?.toBase58()} equity={displayEquity} mode={mode} running={aura.running} />
+          <SolanaStatusCard address={publicKey?.toBase58()} />
         </div>
 
         {isPaper ? (

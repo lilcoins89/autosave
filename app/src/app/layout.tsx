@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { WalletContextProvider } from "@/components/WalletProvider";
 import { MobileNav } from "@/components/MobileNav";
@@ -8,11 +8,12 @@ export const metadata: Metadata = {
   title: "AutoSave — Intelligent capital, safely deployed",
   description:
     "AURA is a Solana-native capital policy engine for saving, automated buying, copy strategies, DCA, and safety-first execution.",
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({
