@@ -401,9 +401,13 @@ export default function DashboardPage() {
           />
         </div>
 
-        {isPaper && (
+        {isPaper ? (
           <div className="mb-4 rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-3 py-2 text-xs sm:text-sm text-cyan-200">
-            <strong>Paper mode</strong> — required for S. Simulated fills only until you leave paper.
+            <strong>Paper mode</strong> — simulated fills only. Use this workspace to tune policy and inspect every decision before going live.
+          </div>
+        ) : (
+          <div className="mb-4 rounded-xl border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs sm:text-sm text-amber-100">
+            <strong>Live mode</strong> — approved Jupiter swaps can use your connected wallet. Safety checks, slippage limits, and the kill switch remain active.
           </div>
         )}
 

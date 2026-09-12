@@ -5,9 +5,9 @@ import { MobileNav } from "@/components/MobileNav";
 import "@solana/wallet-adapter-react-ui/styles.css";
 
 export const metadata: Metadata = {
-  title: "AutoSave — Powered by AURA",
+  title: "AutoSave — Intelligent capital, safely deployed",
   description:
-    "Solana-only intelligent capital management. Paper trading, auto sniper, copy trading, DCA, and safety-first execution.",
+    "AURA is a Solana-native capital policy engine for saving, automated buying, copy strategies, DCA, and safety-first execution.",
   viewport: {
     width: "device-width",
     initialScale: 1,

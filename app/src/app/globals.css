@@ -2,18 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
 
 :root {
-  --foreground: #fafafa;
-  --background: #09090b;
+  --foreground: #f4f7fb;
+  --background: #07111f;
+  --surface: #0b1a2b;
+  --line: #1b3349;
+  --muted: #8295a9;
+  --brand: #58d6c0;
+  --accent: #8ba7ff;
 }
 
+* { box-sizing: border-box; }
+html { background: var(--background); scroll-behavior: smooth; }
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'DM Sans', system-ui, sans-serif;
 }
+h1, h2, h3, h4, .font-display { font-family: 'Space Grotesk', 'DM Sans', sans-serif; }
+::selection { background: rgba(88, 214, 192, 0.24); color: #fff; }
+
+@layer utilities {
+  .text-balance { text-wrap: balance; }
+  .text-pretty { text-wrap: pretty; }
+}
+
 
 /* Wallet adapter overrides */
 .wallet-adapter-button {

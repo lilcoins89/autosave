@@ -5,223 +5,58 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { Navbar } from "@/components/Navbar";
 
+const opportunities = [
+  { token: "$ORBIT", pair: "ORBIT / SOL", age: "38s", liquidity: "$284K", score: "94", status: "ARMED", color: "#b7f34a" },
+  { token: "$MIRA", pair: "MIRA / SOL", age: "2m", liquidity: "$91K", score: "87", status: "WATCH", color: "#62e6d5" },
+  { token: "$KITE", pair: "KITE / SOL", age: "4m", liquidity: "$612K", score: "82", status: "WATCH", color: "#8ba7ff" },
+];
+
+const signals = ["LIQUIDITY", "MOMENTUM", "HOLDER MAP", "LP LOCK", "SOCIAL VELOCITY"];
+
 export default function HomePage() {
   const { connected } = useWallet();
 
   return (
     <>
       <Navbar />
-
-      <section className="relative pt-24 pb-20 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(139,92,246,0.28),transparent)]" />
-        <div className="max-w-6xl mx-auto px-6 text-center relative z-10">
-          <div className="inline-flex items-center gap-2 rounded-full border border-brand-500/30 bg-brand-500/10 px-4 py-1.5 text-sm text-brand-300 mb-8">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            Solana-only · Powered by AURA · Non-custodial
-          </div>
-
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.08] mb-6">
-            Define your capital policy.
-            <br />
-            <span className="bg-gradient-to-r from-brand-400 via-indigo-400 to-cyan-400 bg-clip-text text-transparent">
-              AURA keeps it safe & working.
-            </span>
-          </h1>
-
-          <p className="text-lg sm:text-xl text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Smart allocation, scored AutoBuy, a real Safety Engine, and an
-            Opportunity Sniper — built exclusively for Solana.
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            {connected ? (
-              <Link
-                href="/dashboard"
-                className="w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-brand-600 hover:bg-brand-500 text-white font-semibold px-8 py-4 text-base transition shadow-xl shadow-brand-600/30"
-              >
-                Open Dashboard
-              </Link>
-            ) : (
-              <div className="scale-110">
-                <WalletMultiButton />
-              </div>
-            )}
-            <a
-              href="#pillars"
-              className="w-full sm:w-auto inline-flex items-center justify-center rounded-full border border-zinc-700 hover:border-zinc-500 text-zinc-300 font-medium px-8 py-4 transition"
-            >
-              See the four pillars
-            </a>
-          </div>
-        </div>
-      </section>
-
-      <section id="pillars" className="py-24 border-t border-zinc-900">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              Four pillars of intelligent capital on Solana
-            </h2>
-            <p className="text-zinc-400 max-w-xl mx-auto">
-              Everything runs under AURA. Safety is never optional. Solana only.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            <PillarCard
-              label="01 · SMART SAVE"
-              labelColor="text-brand-400"
-              title="Capital Policy Engine"
-              description="Deposit SOL or USDC. Define targets. AURA maintains them and protects the Reserve when risk rises."
-            >
-              <div className="bg-zinc-950 rounded-xl p-4 text-sm space-y-2 font-mono">
-                <Row label="Reserve" value="40%" />
-                <Row label="AutoBuy" value="25%" />
-                <Row label="Liquidity" value="20%" />
-                <Row label="Trading" value="10%" />
-                <Row label="Opportunity" value="5%" />
-              </div>
-            </PillarCard>
-
-            <PillarCard
-              label="02 · AUTOBUY ENGINE"
-              labelColor="text-cyan-400"
-              title="Opportunity Score, not timers"
-              description="Every potential buy on Solana is scored. Below your threshold → NO TRADE."
-            >
-              <div className="bg-zinc-950 rounded-xl p-4 text-sm font-mono space-y-1.5">
-                <Row label="Liquidity" value="92" />
-                <Row label="Volume" value="87" />
-                <Row label="Momentum" value="81" />
-                <Row label="Execution" value="96" />
-                <Row label="Risk" value="18" valueClass="text-emerald-400" />
-                <div className="border-t border-zinc-800 my-2" />
-                <div className="flex justify-between font-semibold">
-                  <span>AURA SCORE</span>
-                  <span className="text-brand-400">88/100</span>
+      <main className="overflow-hidden bg-[#050b12] text-[#edf5f1]">
+        <section className="relative border-b border-[#182733]">
+          <div className="pointer-events-none absolute inset-0 opacity-40 [background-image:linear-gradient(rgba(98,230,213,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(98,230,213,0.06)_1px,transparent_1px)] [background-size:48px_48px]" />
+          <div className="pointer-events-none absolute left-1/2 top-24 size-[620px] -translate-x-1/2 rounded-full border border-[#b7f34a]/10 shadow-[0_0_120px_rgba(183,243,74,0.08)]" />
+          <div className="pointer-events-none absolute left-1/2 top-44 size-[380px] -translate-x-1/2 rounded-full border border-[#62e6d5]/20" />
+          <div className="relative mx-auto max-w-7xl px-6 pb-20 pt-16 sm:pb-28 sm:pt-24">
+            <div className="flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.2em] text-[#6e8592]"><span><i className="mr-2 inline-block size-1.5 rounded-full bg-[#b7f34a] shadow-[0_0_10px_#b7f34a]" /> AURA // AUTONOMOUS SNIPER</span><span className="hidden sm:block">SOLANA MAINNET · SLOT 312,847,190</span></div>
+            <div className="grid items-center gap-12 pt-14 lg:grid-cols-[1.05fr_.95fr] lg:gap-20">
+              <div>
+                <p className="font-mono text-xs font-semibold uppercase tracking-[0.25em] text-[#62e6d5]">[ SIGNAL ACQUIRED ]</p>
+                <h1 className="mt-5 max-w-3xl font-display text-5xl font-semibold leading-[.95] tracking-[-0.07em] sm:text-7xl lg:text-[92px]">The sniper that<br /><span className="text-[#b7f34a]">waits for proof.</span></h1>
+                <p className="mt-7 max-w-xl text-base leading-7 text-[#8da1ad] sm:text-lg">AURA scans new Solana launches, scores the signal, verifies the risk, and arms the trade. Autonomous execution without blind conviction.</p>
+                <div className="mt-9 flex flex-col gap-3 sm:flex-row">
+                  {connected ? <Link href="/dashboard" className="inline-flex items-center justify-center gap-3 rounded-md bg-[#b7f34a] px-6 py-4 font-mono text-xs font-bold uppercase tracking-[0.12em] text-[#07100b] transition hover:bg-[#d0ff73]">Open sniper console <span aria-hidden="true">→</span></Link> : <div className="[&_.wallet-adapter-button]:!h-12 [&_.wallet-adapter-button]:!rounded-md [&_.wallet-adapter-button]:!bg-[#b7f34a] [&_.wallet-adapter-button]:!font-mono [&_.wallet-adapter-button]:!text-xs [&_.wallet-adapter-button]:!font-bold [&_.wallet-adapter-button]:!uppercase [&_.wallet-adapter-button]:!tracking-[0.12em] [&_.wallet-adapter-button]:!text-[#07100b]"><WalletMultiButton /></div>}
+                  <a href="#terminal" className="inline-flex items-center justify-center rounded-md border border-[#29404b] px-6 py-4 font-mono text-xs font-semibold uppercase tracking-[0.12em] text-[#b7c8cc] transition hover:border-[#62e6d5] hover:text-[#62e6d5]">Watch the scan</a>
                 </div>
-                <div className="text-emerald-400 text-xs mt-1">ACTION: BUY</div>
+                <div className="mt-10 flex flex-wrap gap-x-7 gap-y-3 font-mono text-[10px] uppercase tracking-[0.15em] text-[#6e8592]"><span><b className="text-[#b7f34a]">●</b> non-custodial</span><span><b className="text-[#62e6d5]">●</b> paper-first</span><span><b className="text-[#8ba7ff]">●</b> Jupiter routed</span></div>
               </div>
-            </PillarCard>
-
-            <PillarCard
-              label="03 · SAFETY ENGINE"
-              labelColor="text-emerald-400"
-              title="The heart of the product"
-              description="Token checks + execution simulation + portfolio limits. Kill Switch on breach."
-            >
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <Stat label="Daily Loss Limit" value="5%" />
-                <Stat label="Max Position" value="3%" />
-                <Stat label="Max Slippage" value="1%" />
-                <Stat label="Min Liquidity" value="$50k+" />
+              <div className="relative mx-auto w-full max-w-[490px]" aria-label="AURA scanner visualization">
+                <div className="relative aspect-square rounded-full border border-[#29404b] bg-[#071119]/80 shadow-[0_0_80px_rgba(98,230,213,0.09)]"><div className="absolute inset-[13%] rounded-full border border-dashed border-[#62e6d5]/30" /><div className="absolute inset-[27%] rounded-full border border-[#b7f34a]/20" /><div className="absolute inset-[41%] rounded-full border border-[#62e6d5]/25" /><div className="absolute left-1/2 top-1/2 h-px w-[92%] -translate-x-1/2 bg-[#62e6d5]/20" /><div className="absolute left-1/2 top-1/2 h-[92%] w-px -translate-x-1/2 bg-[#62e6d5]/20" /><div className="absolute left-[19%] top-[28%] size-2 rounded-full bg-[#b7f34a] shadow-[0_0_18px_#b7f34a]" /><div className="absolute right-[24%] top-[21%] size-1.5 rounded-full bg-[#62e6d5] shadow-[0_0_15px_#62e6d5]" /><div className="absolute bottom-[28%] right-[18%] size-2 rounded-full bg-[#8ba7ff] shadow-[0_0_18px_#8ba7ff]" /><div className="absolute left-1/2 top-1/2 flex size-28 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full border border-[#b7f34a]/40 bg-[#0b191c] text-center shadow-[0_0_35px_rgba(183,243,74,0.18)]"><span className="font-mono text-[9px] uppercase tracking-[0.2em] text-[#6e8592]">system</span><strong className="mt-1 font-display text-2xl text-[#b7f34a]">ARMED</strong><span className="font-mono text-[9px] text-[#62e6d5]">94.2% ready</span></div><div className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap border border-[#29404b] bg-[#071119] px-3 py-2 font-mono text-[9px] uppercase tracking-[0.18em] text-[#6e8592]">real-time opportunity field</div></div>
               </div>
-            </PillarCard>
-
-            <PillarCard
-              label="04 · OPPORTUNITY SNIPER"
-              labelColor="text-amber-400"
-              title="Not a faster sniper. A smarter one."
-              description="Watches new Solana launches. Only acts when liquidity, score, and safety all agree."
-            />
-          </div>
-        </div>
-      </section>
-
-      <section className="py-24 border-t border-zinc-900">
-        <div className="max-w-3xl mx-auto px-6 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-            Built exclusively for Solana
-          </h2>
-          <p className="text-zinc-400 mb-8">
-            No multi-chain complexity. Just intelligent capital management on
-            the network where speed and low fees actually matter.
-          </p>
-          {connected ? (
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center justify-center rounded-full bg-brand-600 hover:bg-brand-500 text-white font-semibold px-10 py-4 text-lg transition shadow-xl shadow-brand-600/30"
-            >
-              Go to Dashboard
-            </Link>
-          ) : (
-            <div className="inline-block scale-110">
-              <WalletMultiButton />
             </div>
-          )}
-        </div>
-      </section>
+          </div>
+        </section>
 
-      <footer className="border-t border-zinc-900 py-12">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2 font-bold">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-500 to-cyan-400 flex items-center justify-center text-white text-xs font-bold">
-              A
-            </div>
-            AutoSave <span className="text-brand-400 text-sm font-medium">AURA</span>
-          </div>
-          <div className="text-sm text-zinc-500">
-            © 2026 AutoSave. Solana-only. Non-custodial.
-          </div>
-          <a
-            href="https://github.com/lilcoins89/autosave"
-            className="text-sm text-zinc-400 hover:text-white transition"
-            target="_blank"
-            rel="noreferrer"
-          >
-            GitHub
-          </a>
-        </div>
-      </footer>
+        <section className="border-b border-[#182733] bg-[#071119] py-3"><div className="mx-auto flex max-w-7xl items-center gap-6 overflow-hidden px-6 font-mono text-[10px] uppercase tracking-[0.16em] text-[#6e8592]"><span className="shrink-0 text-[#62e6d5]">MARKET PULSE</span><span className="shrink-0 text-[#b7f34a]">SOL +2.84%</span><span className="shrink-0">JUP $1.24 <b className="text-[#b7f34a]">+6.10%</b></span><span className="shrink-0">RAY $4.08 <b className="text-[#b7f34a]">+3.42%</b></span><span className="hidden shrink-0 sm:inline">NEW POOLS / 1,284</span><span className="hidden shrink-0 md:inline">AURA SCANS / 38,421</span></div></section>
+
+        <section id="terminal" className="mx-auto max-w-7xl px-6 py-20 sm:py-28"><div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end"><div><p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#62e6d5]">/ live signal board</p><h2 className="mt-3 font-display text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">What the sniper sees.</h2></div><p className="max-w-sm font-mono text-xs leading-6 text-[#6e8592]">Every new pool enters the queue. Only tokens that clear the gates can move from observed to armed.</p></div>
+          <div className="overflow-hidden rounded-lg border border-[#29404b] bg-[#071119]"><div className="flex items-center justify-between border-b border-[#182733] px-4 py-3 font-mono text-[10px] uppercase tracking-[0.16em] text-[#6e8592]"><span><i className="mr-2 inline-block size-1.5 rounded-full bg-[#b7f34a]" /> scan stream / block 198,442,761</span><span className="text-[#62e6d5]">auto-refresh 2s</span></div><div className="hidden grid-cols-[1.3fr_1fr_.7fr_1fr_.6fr_.7fr] gap-4 px-5 py-3 font-mono text-[9px] uppercase tracking-[0.15em] text-[#526a76] sm:grid">{["asset", "signal", "age", "liquidity", "score", "state"].map((item) => <span key={item}>{item}</span>)}</div>{opportunities.map((item) => <div key={item.token} className="grid gap-3 border-t border-[#182733] px-5 py-4 sm:grid-cols-[1.3fr_1fr_.7fr_1fr_.6fr_.7fr] sm:items-center sm:gap-4"><div><div className="flex items-center gap-2 font-mono text-sm font-bold"><span className="size-2 rounded-full" style={{ background: item.color, boxShadow: `0 0 10px ${item.color}` }} />{item.token}</div><div className="mt-1 font-mono text-[9px] uppercase tracking-[0.14em] text-[#526a76]">{item.pair}</div></div><div className="flex flex-wrap gap-1.5">{signals.slice(0, 3).map((signal) => <span key={signal} className="rounded border border-[#29404b] px-1.5 py-1 font-mono text-[8px] text-[#8da1ad]">{signal}</span>)}</div><span className="font-mono text-xs text-[#8da1ad]">{item.age}</span><span className="font-mono text-xs text-[#8da1ad]">{item.liquidity}</span><strong className="font-mono text-lg" style={{ color: item.color }}>{item.score}</strong><span className="w-fit rounded border px-2 py-1 font-mono text-[9px] font-bold tracking-[0.12em]" style={{ color: item.color, borderColor: `${item.color}55` }}>{item.status}</span></div>)}</div>
+        </section>
+
+        <section className="border-y border-[#182733] bg-[#071119]"><div className="mx-auto grid max-w-7xl gap-12 px-6 py-20 sm:py-28 lg:grid-cols-[.8fr_1.2fr] lg:gap-24"><div><p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#b7f34a]">/ execution protocol</p><h2 className="mt-4 font-display text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">Fast hands.<br /><span className="text-[#6e8592]">Slow decisions.</span></h2><p className="mt-6 max-w-md text-sm leading-7 text-[#8da1ad]">AURA is not a buy button with a robot attached. It is a layered gate that refuses to trade when the evidence is incomplete.</p></div><div className="grid gap-3 sm:grid-cols-2">{[{ n:"01", t:"Discover", d:"New pools and wallet flow enter the scan stream." },{ n:"02", t:"Score", d:"Liquidity, momentum, holders, and velocity become one signal." },{ n:"03", t:"Protect", d:"Token safety, slippage, limits, and simulation run first." },{ n:"04", t:"Execute", d:"Paper or live. Jupiter routes only after every gate clears." }].map((step) => <div key={step.n} className="border border-[#29404b] p-5"><span className="font-mono text-[10px] text-[#62e6d5]">{step.n}</span><h3 className="mt-7 font-display text-xl font-semibold">{step.t}</h3><p className="mt-2 text-sm leading-6 text-[#6e8592]">{step.d}</p></div>)}</div></div></section>
+
+        <section className="mx-auto max-w-4xl px-6 py-24 text-center sm:py-32"><p className="font-mono text-[10px] uppercase tracking-[0.22em] text-[#62e6d5]">/ initialize your console</p><h2 className="mt-4 font-display text-4xl font-semibold tracking-[-0.06em] sm:text-6xl">Stop chasing candles.<br /><span className="text-[#b7f34a]">Start hunting signal.</span></h2><p className="mx-auto mt-6 max-w-xl text-sm leading-7 text-[#8da1ad]">Connect a wallet. Start in paper mode. Let AURA prove the edge before you decide whether to deploy real capital.</p>{connected ? <Link href="/dashboard" className="mt-9 inline-flex items-center gap-3 rounded-md bg-[#b7f34a] px-6 py-4 font-mono text-xs font-bold uppercase tracking-[0.12em] text-[#07100b]">Enter sniper console <span aria-hidden="true">→</span></Link> : <div className="mt-9 inline-block [&_.wallet-adapter-button]:!h-12 [&_.wallet-adapter-button]:!rounded-md [&_.wallet-adapter-button]:!bg-[#b7f34a] [&_.wallet-adapter-button]:!font-mono [&_.wallet-adapter-button]:!text-xs [&_.wallet-adapter-button]:!font-bold [&_.wallet-adapter-button]:!uppercase [&_.wallet-adapter-button]:!tracking-[0.12em] [&_.wallet-adapter-button]:!text-[#07100b]"><WalletMultiButton /></div>}</section>
+      </main>
+      <footer className="flex flex-col gap-4 border-t border-[#182733] bg-[#050b12] px-6 py-8 font-mono text-[10px] uppercase tracking-[0.15em] text-[#526a76] sm:flex-row sm:items-center sm:justify-between"><div className="font-display text-sm font-semibold tracking-normal text-[#edf5f1]">AutoSave <span className="text-[#b7f34a]">/ AURA</span></div><div>Solana-only · non-custodial · © 2026</div><a href="https://github.com/lilcoins89/autosave" target="_blank" rel="noreferrer" className="transition hover:text-[#b7f34a]">Source ↗</a></footer>
     </>
   );
 }
 
-function PillarCard({
-  label,
-  labelColor,
-  title,
-  description,
-  children,
-}: {
-  label: string;
-  labelColor: string;
-  title: string;
-  description: string;
-  children?: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-8 transition hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-900/20">
-      <div className={`${labelColor} font-semibold text-sm mb-3`}>{label}</div>
-      <h3 className="text-xl font-semibold mb-3">{title}</h3>
-      <p className="text-zinc-400 mb-5 leading-relaxed">{description}</p>
-      {children}
-    </div>
-  );
-}
-
-function Row({
-  label,
-  value,
-  valueClass = "",
-}: {
-  label: string;
-  value: string;
-  valueClass?: string;
-}) {
-  return (
-    <div className="flex justify-between">
-      <span className="text-zinc-500">{label}</span>
-      <span className={valueClass}>{value}</span>
-    </div>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="bg-zinc-950 rounded-lg p-3">
-      <div className="text-zinc-500 text-xs mb-1">{label}</div>
-      <div className="font-semibold">{value}</div>
-    </div>
-  );
-}
+function MiniMetric({ label, value }: { label: string; value: string }) { return <div className="border-l border-[#1b3349] pl-3"><div className="text-[10px] uppercase tracking-[0.16em] text-[#8295a9]">{label}</div><div className="mt-1 text-sm font-semibold text-[#f4f7fb] sm:text-base">{value}</div></div>; }
