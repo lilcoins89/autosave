@@ -2,67 +2,61 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
 :root {
-  --foreground: #f4f7fb;
-  --background: #07111f;
-  --surface: #0b1a2b;
-  --line: #1b3349;
-  --muted: #8295a9;
-  --brand: #58d6c0;
-  --accent: #8ba7ff;
+  --foreground: #f4ecdb;
+  --background: #15130f;
+  --surface: #211d16;
+  --surface-raised: #2b251b;
+  --line: #5a4a30;
+  --muted: #a6987d;
+  --brand: #d4a646;
+  --accent: #afc3a0;
+  --oxblood: #762f2b;
 }
 
 * { box-sizing: border-box; }
 html { background: var(--background); scroll-behavior: smooth; }
 body {
   color: var(--foreground);
-  background: var(--background);
+  background-color: var(--background);
+  background-image: radial-gradient(rgba(244,236,219,.045) .7px, transparent .7px);
+  background-size: 6px 6px;
   font-family: 'DM Sans', system-ui, sans-serif;
 }
-h1, h2, h3, h4, .font-display { font-family: 'Space Grotesk', 'DM Sans', sans-serif; }
-::selection { background: rgba(88, 214, 192, 0.24); color: #fff; }
+h1, h2, h3, h4, .font-display { font-family: 'Playfair Display', Georgia, serif; }
+.font-mono { font-family: 'Space Mono', ui-monospace, monospace; }
+::selection { background: rgba(212, 166, 70, 0.28); color: #fff8e9; }
 
 @layer utilities {
   .text-balance { text-wrap: balance; }
   .text-pretty { text-wrap: pretty; }
+  .classic-rule { border-color: rgba(212, 166, 70, 0.34); }
+  .ledger-surface { background: linear-gradient(145deg, rgba(43,37,27,.92), rgba(21,19,15,.96)); }
+  .engraved { text-shadow: 0 1px 0 rgba(255,248,233,.12), 0 2px 14px rgba(0,0,0,.24); }
 }
-
 
 /* Wallet adapter overrides */
 .wallet-adapter-button {
-  background-color: #7c3aed !important;
-  border-radius: 9999px !important;
-  font-family: 'Inter', system-ui, sans-serif !important;
-  font-weight: 600 !important;
+  background-color: #762f2b !important;
+  border: 1px solid #d4a646 !important;
+  border-radius: 5px !important;
+  color: #fff4d7 !important;
+  font-family: 'Space Mono', ui-monospace, monospace !important;
+  font-size: 10px !important;
+  font-weight: 700 !important;
   height: 40px !important;
   line-height: 40px !important;
-  padding: 0 20px !important;
-  transition: background-color 0.2s !important;
+  padding: 0 16px !important;
+  text-transform: uppercase !important;
+  letter-spacing: .08em !important;
+  transition: background-color .2s, border-color .2s !important;
 }
-.wallet-adapter-button:hover {
-  background-color: #8b5cf6 !important;
-}
-.wallet-adapter-button-trigger {
-  background-color: #7c3aed !important;
-}
-.wallet-adapter-modal-wrapper {
-  background: rgba(0, 0, 0, 0.8) !important;
-}
-.wallet-adapter-modal {
-  background: #18181b !important;
-  border: 1px solid #27272a !important;
-  border-radius: 16px !important;
-}
-.wallet-adapter-modal-title {
-  color: #fafafa !important;
-  font-family: 'Inter', system-ui, sans-serif !important;
-}
-.wallet-adapter-modal-list li {
-  background: #27272a !important;
-  border-radius: 12px !important;
-}
-.wallet-adapter-modal-list li:hover {
-  background: #3f3f46 !important;
-}
+.wallet-adapter-button:hover { background-color: #913c35 !important; border-color: #f0c967 !important; }
+.wallet-adapter-button-trigger { background-color: #762f2b !important; }
+.wallet-adapter-modal-wrapper { background: rgba(9, 8, 6, .82) !important; }
+.wallet-adapter-modal { background: #211d16 !important; border: 1px solid #6e5930 !important; border-radius: 6px !important; }
+.wallet-adapter-modal-title { color: #f4ecdb !important; font-family: 'Playfair Display', Georgia, serif !important; }
+.wallet-adapter-modal-list li { background: #2b251b !important; border-radius: 4px !important; }
+.wallet-adapter-modal-list li:hover { background: #3b3021 !important; }
