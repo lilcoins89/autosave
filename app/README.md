@@ -1,6 +1,6 @@
 # AutoSave App (Next.js + Solana)
 
-Real wallet integration, multi-network support (mainnet / devnet / testnet), Helius-ready RPC, and live on-chain balances.
+Real wallet integration, multi-network support, live balances, USD estimates on all networks, and a New Token Opportunity Monitor (good liquidity only).
 
 ## Quick Start
 
@@ -11,45 +11,35 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000
-
 ## Networks
 
-Set the network in `.env.local`:
-
 ```env
-# mainnet-beta | devnet | testnet
-NEXT_PUBLIC_SOLANA_NETWORK=mainnet-beta
-```
-
-| Network        | Use case                    | USD estimates |
-|----------------|-----------------------------|---------------|
-| `mainnet-beta` | Production / real funds     | Yes (mock price) |
-| `devnet`       | Development & testing       | Disabled      |
-| `testnet`      | Additional test environment | Disabled      |
-
-## Helius RPC (recommended)
-
-```env
-# Mainnet
+NEXT_PUBLIC_SOLANA_NETWORK=mainnet-beta   # or devnet | testnet
 NEXT_PUBLIC_RPC_URL=https://mainnet.helius-rpc.com/?api-key=YOUR_KEY
-
-# Devnet
-# NEXT_PUBLIC_SOLANA_NETWORK=devnet
-# NEXT_PUBLIC_RPC_URL=https://devnet.helius-rpc.com/?api-key=YOUR_KEY
 ```
 
-If `NEXT_PUBLIC_RPC_URL` is empty, the app uses the public Solana cluster URL for the selected network.
-
-**Important:** Use a wallet that has funds on the same network you select (devnet SOL is different from mainnet SOL).
-
-## What is live
+## Features
 
 - Wallet connection (Phantom, Solflare, Ledger)
-- Network badge in navbar + dashboard
-- Live SOL balance
-- Live SPL token balances (USDC and others)
-- Auto-refresh every 30s
+- Mainnet / Devnet / Testnet
+- Live SOL + SPL token balances
+- **USD estimates enabled on all networks** (reference SOL price)
+- **New Token Monitor** — only surfaces launches that pass:
+  - Minimum liquidity (default $50k+)
+  - Minimum score
+  - Optional revoked mint/freeze authority requirement
+- Safety Engine UI + Kill Switch
+- Capital policy visualization
+
+## Opportunity Monitor
+
+The monitor filters aggressively for **good liquidity only**. Low-liquidity and open-authority tokens are excluded by default.
+
+Currently uses structured demo data so the UI and filters are fully usable. Replace `fetchOpportunities` inside `src/hooks/useTokenOpportunities.ts` with:
+
+- Helius webhooks / enhanced transactions for new pools
+- Birdeye / DexScreener new pairs
+- Custom indexer on Raydium / Meteora / Orca pool creation
 
 ## Scripts
 

@@ -5,11 +5,16 @@ import { Navbar } from "@/components/Navbar";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useSolanaBalances } from "@/hooks/useSolanaBalances";
 import { NetworkBadge } from "@/components/NetworkBadge";
+import { OpportunityMonitor } from "@/components/OpportunityMonitor";
 import {
   getNetwork,
   getNetworkLabel,
   isCustomRpc,
 } from "@/lib/rpc";
+
+// Approximate SOL price used for USD estimates on all networks.
+// Replace with a real price feed (Pyth / Birdeye / CoinGecko) later.
+const SOL_PRICE_USD = 180;
 
 export default function DashboardPage() {
   const { connected, publicKey } = useWallet();
@@ -44,12 +49,9 @@ export default function DashboardPage() {
   const usdc = tokens.find((t) => t.symbol === "USDC");
   const otherTokens = tokens.filter((t) => t.symbol !== "USDC").slice(0, 5);
 
-  // Rough portfolio estimate — only meaningful on mainnet
-  const MOCK_SOL_PRICE = network === "mainnet-beta" ? 180 : 0;
+  // USD estimates enabled on ALL networks
   const estimatedUsd =
-    network === "mainnet-beta"
-      ? (sol ?? 0) * MOCK_SOL_PRICE + (usdc?.uiAmount ?? 0)
-      : null;
+    (sol ?? 0) * SOL_PRICE_USD + (usdc?.uiAmount ?? 0);
 
   return (
     <>
@@ -83,8 +85,9 @@ export default function DashboardPage() {
 
         {network !== "mainnet-beta" && (
           <div className="mb-6 rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-4 py-3 text-sm text-cyan-200">
-            You are on <strong>{networkLabel}</strong>. Balances and tokens are
-            from this network. USD estimates are disabled outside mainnet.
+            You are on <strong>{networkLabel}</strong>. Balances are live from
+            this network. USD estimates use a reference SOL price (${SOL_PRICE_USD}) for
+            display purposes.
           </div>
         )}
 
@@ -94,24 +97,18 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Live Metrics */}
+        {/* Live Metrics — USD enabled on all networks */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <MetricCard
-            label={network === "mainnet-beta" ? "Est. Portfolio (USD)" : "Network"}
+            label="Est. Portfolio (USD)"
             value={
-              network === "mainnet-beta"
-                ? loading && sol === null
-                  ? "…"
-                  : `$${(estimatedUsd ?? 0).toLocaleString(undefined, {
-                      maximumFractionDigits: 2,
-                    })}`
-                : networkLabel
+              loading && sol === null
+                ? "…"
+                : `$${estimatedUsd.toLocaleString(undefined, {
+                    maximumFractionDigits: 2,
+                  })}`
             }
-            sub={
-              network === "mainnet-beta"
-                ? "SOL @ mock $180 + USDC"
-                : "Dev / test environment"
-            }
+            sub={`SOL @ $${SOL_PRICE_USD} + USDC · ${networkLabel}`}
             subColor="text-zinc-500"
           />
           <MetricCard
@@ -125,7 +122,9 @@ export default function DashboardPage() {
                   })} SOL`
                 : "—"
             }
-            sub={`On-chain · ${networkLabel}`}
+            sub={`≈ $${((sol ?? 0) * SOL_PRICE_USD).toLocaleString(undefined, {
+              maximumFractionDigits: 0,
+            })}`}
             subColor="text-zinc-500"
             valueColor="text-brand-400"
           />
@@ -133,12 +132,12 @@ export default function DashboardPage() {
             label="USDC Balance"
             value={
               usdc
-                ? usdc.uiAmount.toLocaleString(undefined, {
+                ? `$${usdc.uiAmount.toLocaleString(undefined, {
                     maximumFractionDigits: 2,
-                  })
+                  })}`
                 : loading
                 ? "…"
-                : "0.00"
+                : "$0.00"
             }
             sub="On-chain"
             subColor="text-zinc-500"
@@ -155,6 +154,9 @@ export default function DashboardPage() {
 
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
+            {/* NEW: Opportunity Monitor */}
+            <OpportunityMonitor />
+
             {/* Holdings */}
             <section className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
               <div className="flex items-center justify-between mb-5">
@@ -184,14 +186,12 @@ export default function DashboardPage() {
                           })
                         : "…"}
                     </div>
-                    {network === "mainnet-beta" && sol !== null && (
-                      <div className="text-xs text-zinc-500">
-                        ≈ $
-                        {(sol * MOCK_SOL_PRICE).toLocaleString(undefined, {
-                          maximumFractionDigits: 0,
-                        })}
-                      </div>
-                    )}
+                    <div className="text-xs text-zinc-500">
+                      ≈ $
+                      {((sol ?? 0) * SOL_PRICE_USD).toLocaleString(undefined, {
+                        maximumFractionDigits: 0,
+                      })}
+                    </div>
                   </div>
                 </div>
 
@@ -209,7 +209,8 @@ export default function DashboardPage() {
                       </div>
                     </div>
                     <div className="text-right font-medium">
-                      {usdc.uiAmount.toLocaleString(undefined, {
+                      ${
+                      usdc.uiAmount.toLocaleString(undefined, {
                         maximumFractionDigits: 2,
                       })}
                     </div>
@@ -248,7 +249,7 @@ export default function DashboardPage() {
               </div>
             </section>
 
-            {/* Policy + Score remain illustrative */}
+            {/* Policy */}
             <section className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
               <div className="flex items-center justify-between mb-5">
                 <h2 className="text-lg font-semibold">Smart Save · Capital Policy</h2>
@@ -263,10 +264,6 @@ export default function DashboardPage() {
                 <PolicyBar label="Trading" current={9.4} target={10} color="bg-amber-500" />
                 <PolicyBar label="Opportunity Reserve" current={4.5} target={5} color="bg-purple-500" />
               </div>
-              <p className="text-xs text-zinc-500 mt-4">
-                Policy UI is illustrative until AURA strategy state is fully wired.
-                Balances above are live from {networkLabel}.
-              </p>
             </section>
           </div>
 
@@ -291,7 +288,7 @@ export default function DashboardPage() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-zinc-500">Min Liquidity</span>
-                  <span>$100k</span>
+                  <span>$50k+</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-zinc-500">Kill Switch</span>
@@ -317,12 +314,6 @@ export default function DashboardPage() {
                   </span>
                 </div>
               </div>
-              <p className="text-xs text-zinc-500 mt-3">
-                Change network via{" "}
-                <code className="text-zinc-400">NEXT_PUBLIC_SOLANA_NETWORK</code>{" "}
-                in <code className="text-zinc-400">.env.local</code>. Use matching
-                Helius URL for best results.
-              </p>
             </section>
           </div>
         </div>
