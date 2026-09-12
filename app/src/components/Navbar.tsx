@@ -23,20 +23,18 @@ export function Navbar() {
             <span className="text-brand-400 text-xs font-medium">AURA</span>
           </Link>
 
-          {isApp && (
-            <nav className="hidden md:flex items-center gap-1 text-sm">
-              <Link
-                href="/dashboard"
-                className={`px-3 py-1.5 rounded-lg font-medium ${
-                  pathname === "/dashboard"
-                    ? "bg-zinc-800 text-white"
-                    : "text-zinc-400 hover:text-white hover:bg-zinc-900"
-                }`}
-              >
-                Overview
-              </Link>
-            </nav>
-          )}
+          <nav className="hidden items-center gap-1 text-sm sm:flex">
+            <Link
+              href="/dashboard"
+              className={`rounded-md px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.12em] transition ${
+                isApp && pathname === "/dashboard"
+                  ? "bg-[#b7f34a] text-[#07100b]"
+                  : "border border-[#29404b] text-[#b7c8cc] hover:border-[#62e6d5] hover:text-[#62e6d5]"
+              }`}
+            >
+              Dashboard
+            </Link>
+          </nav>
         </div>
 
         <div className="flex items-center gap-3">
