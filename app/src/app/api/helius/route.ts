@@ -21,7 +21,8 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const network = getNetwork();
+    const requestedNetwork = request.nextUrl.searchParams.get("network") || undefined;
+    const network = getNetwork(requestedNetwork);
     const heliusKey = process.env.HELIUS_API_KEY;
     const endpoint = process.env.NEXT_PUBLIC_RPC_URL?.trim()
       || (heliusKey && network !== "testnet" ? `https://${network === "devnet" ? "devnet" : "mainnet"}.helius-rpc.com/?api-key=${heliusKey}` : getRpcEndpoint());
