@@ -4,12 +4,20 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { Navbar } from "@/components/Navbar";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useSolanaBalances } from "@/hooks/useSolanaBalances";
-import { isCustomRpc } from "@/lib/rpc";
+import { NetworkBadge } from "@/components/NetworkBadge";
+import {
+  getNetwork,
+  getNetworkLabel,
+  isCustomRpc,
+} from "@/lib/rpc";
 
 export default function DashboardPage() {
   const { connected, publicKey } = useWallet();
   const { sol, tokens, loading, error, lastUpdated, refetch } =
     useSolanaBalances();
+
+  const network = getNetwork();
+  const networkLabel = getNetworkLabel(network);
 
   if (!connected) {
     return (
@@ -18,9 +26,11 @@ export default function DashboardPage() {
         <div className="min-h-[70vh] flex flex-col items-center justify-center gap-6 px-6">
           <h1 className="text-2xl font-bold">Connect your wallet to continue</h1>
           <p className="text-zinc-400 text-center max-w-md">
-            AutoSave is non-custodial. Connect Phantom, Solflare, or another
-            supported wallet to access your dashboard and live balances.
+            AutoSave is non-custodial. Connect a wallet on{" "}
+            <span className="text-white font-medium">{networkLabel}</span> to
+            access live balances and the AURA dashboard.
           </p>
+          <NetworkBadge showRpcHint />
           <WalletMultiButton />
         </div>
       </>
@@ -34,10 +44,12 @@ export default function DashboardPage() {
   const usdc = tokens.find((t) => t.symbol === "USDC");
   const otherTokens = tokens.filter((t) => t.symbol !== "USDC").slice(0, 5);
 
-  // Rough portfolio estimate (SOL * mock price + USDC). Replace with real price feed later.
-  const MOCK_SOL_PRICE = 180;
+  // Rough portfolio estimate — only meaningful on mainnet
+  const MOCK_SOL_PRICE = network === "mainnet-beta" ? 180 : 0;
   const estimatedUsd =
-    (sol ?? 0) * MOCK_SOL_PRICE + (usdc?.uiAmount ?? 0);
+    network === "mainnet-beta"
+      ? (sol ?? 0) * MOCK_SOL_PRICE + (usdc?.uiAmount ?? 0)
+      : null;
 
   return (
     <>
@@ -57,12 +69,8 @@ export default function DashboardPage() {
               )}
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            {!isCustomRpc() && (
-              <span className="text-xs text-amber-400/90 bg-amber-400/10 border border-amber-400/20 px-2.5 py-1 rounded-full">
-                Using public RPC — set NEXT_PUBLIC_RPC_URL for Helius
-              </span>
-            )}
+          <div className="flex items-center gap-3 flex-wrap">
+            <NetworkBadge showRpcHint />
             <button
               onClick={() => refetch()}
               disabled={loading}
@@ -73,6 +81,13 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {network !== "mainnet-beta" && (
+          <div className="mb-6 rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-4 py-3 text-sm text-cyan-200">
+            You are on <strong>{networkLabel}</strong>. Balances and tokens are
+            from this network. USD estimates are disabled outside mainnet.
+          </div>
+        )}
+
         {error && (
           <div className="mb-6 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
             Failed to load on-chain data: {error}
@@ -82,15 +97,21 @@ export default function DashboardPage() {
         {/* Live Metrics */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <MetricCard
-            label="Est. Portfolio (USD)"
+            label={network === "mainnet-beta" ? "Est. Portfolio (USD)" : "Network"}
             value={
-              loading && sol === null
-                ? "…"
-                : `$${estimatedUsd.toLocaleString(undefined, {
-                    maximumFractionDigits: 2,
-                  })}`
+              network === "mainnet-beta"
+                ? loading && sol === null
+                  ? "…"
+                  : `$${(estimatedUsd ?? 0).toLocaleString(undefined, {
+                      maximumFractionDigits: 2,
+                    })}`
+                : networkLabel
             }
-            sub="SOL @ mock $180 + USDC"
+            sub={
+              network === "mainnet-beta"
+                ? "SOL @ mock $180 + USDC"
+                : "Dev / test environment"
+            }
             subColor="text-zinc-500"
           />
           <MetricCard
@@ -104,7 +125,7 @@ export default function DashboardPage() {
                   })} SOL`
                 : "—"
             }
-            sub="On-chain"
+            sub={`On-chain · ${networkLabel}`}
             subColor="text-zinc-500"
             valueColor="text-brand-400"
           />
@@ -112,12 +133,12 @@ export default function DashboardPage() {
             label="USDC Balance"
             value={
               usdc
-                ? `$${usdc.uiAmount.toLocaleString(undefined, {
+                ? usdc.uiAmount.toLocaleString(undefined, {
                     maximumFractionDigits: 2,
-                  })}`
+                  })
                 : loading
                 ? "…"
-                : "$0.00"
+                : "0.00"
             }
             sub="On-chain"
             subColor="text-zinc-500"
@@ -133,19 +154,18 @@ export default function DashboardPage() {
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
-          {/* Left */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Live Token Holdings */}
+            {/* Holdings */}
             <section className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
               <div className="flex items-center justify-between mb-5">
                 <h2 className="text-lg font-semibold">On-chain Holdings</h2>
                 <span className="text-xs text-zinc-500">
-                  {tokens.length} token account{tokens.length !== 1 ? "s" : ""}
+                  {tokens.length} token account{tokens.length !== 1 ? "s" : ""} ·{" "}
+                  {networkLabel}
                 </span>
               </div>
 
               <div className="space-y-3">
-                {/* SOL row */}
                 <div className="flex items-center justify-between p-4 rounded-xl bg-zinc-950/60 border border-zinc-800">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-xl bg-orange-500/15 flex items-center justify-center text-orange-400 font-bold text-sm">
@@ -164,13 +184,14 @@ export default function DashboardPage() {
                           })
                         : "…"}
                     </div>
-                    <div className="text-xs text-zinc-500">
-                      {sol !== null
-                        ? `≈ $${(sol * MOCK_SOL_PRICE).toLocaleString(undefined, {
-                            maximumFractionDigits: 0,
-                          })}`
-                        : ""}
-                    </div>
+                    {network === "mainnet-beta" && sol !== null && (
+                      <div className="text-xs text-zinc-500">
+                        ≈ $
+                        {(sol * MOCK_SOL_PRICE).toLocaleString(undefined, {
+                          maximumFractionDigits: 0,
+                        })}
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -182,16 +203,15 @@ export default function DashboardPage() {
                       </div>
                       <div>
                         <div className="font-medium">USD Coin</div>
-                        <div className="text-sm text-zinc-500">EPjF...Dt1v</div>
+                        <div className="text-sm text-zinc-500">
+                          {usdc.mint.slice(0, 4)}...{usdc.mint.slice(-4)}
+                        </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="font-medium">
-                        {usdc.uiAmount.toLocaleString(undefined, {
-                          maximumFractionDigits: 2,
-                        })}
-                      </div>
-                      <div className="text-xs text-zinc-500">Stable</div>
+                    <div className="text-right font-medium">
+                      {usdc.uiAmount.toLocaleString(undefined, {
+                        maximumFractionDigits: 2,
+                      })}
                     </div>
                   </div>
                 )}
@@ -212,30 +232,26 @@ export default function DashboardPage() {
                         </div>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="font-medium">
-                        {t.uiAmount.toLocaleString(undefined, {
-                          maximumFractionDigits: 4,
-                        })}
-                      </div>
+                    <div className="text-right font-medium">
+                      {t.uiAmount.toLocaleString(undefined, {
+                        maximumFractionDigits: 4,
+                      })}
                     </div>
                   </div>
                 ))}
 
-                {!loading && tokens.length === 0 && sol === 0 && (
+                {!loading && tokens.length === 0 && (sol === null || sol === 0) && (
                   <p className="text-sm text-zinc-500 py-4 text-center">
-                    No significant balances found on this wallet.
+                    No significant balances found on this wallet ({networkLabel}).
                   </p>
                 )}
               </div>
             </section>
 
-            {/* Capital Policy (still policy-layer UI) */}
+            {/* Policy + Score remain illustrative */}
             <section className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
               <div className="flex items-center justify-between mb-5">
-                <h2 className="text-lg font-semibold">
-                  Smart Save · Capital Policy
-                </h2>
+                <h2 className="text-lg font-semibold">Smart Save · Capital Policy</h2>
                 <button className="text-sm text-brand-400 hover:text-brand-300">
                   Edit Policy
                 </button>
@@ -248,49 +264,12 @@ export default function DashboardPage() {
                 <PolicyBar label="Opportunity Reserve" current={4.5} target={5} color="bg-purple-500" />
               </div>
               <p className="text-xs text-zinc-500 mt-4">
-                Policy targets are illustrative until on-chain positions & AURA
-                state are fully wired. Live balances above are real.
+                Policy UI is illustrative until AURA strategy state is fully wired.
+                Balances above are live from {networkLabel}.
               </p>
-            </section>
-
-            {/* Opportunity Score */}
-            <section className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
-              <div className="flex items-center justify-between mb-5">
-                <h2 className="text-lg font-semibold">
-                  AutoBuy · Latest Opportunity Score
-                </h2>
-                <span className="text-xs font-medium px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400">
-                  BUY
-                </span>
-              </div>
-              <div className="grid sm:grid-cols-2 gap-6">
-                <div className="space-y-3 font-mono text-sm">
-                  <ScoreRow label="Liquidity" value={92} />
-                  <ScoreRow label="Volume" value={87} />
-                  <ScoreRow label="Momentum" value={81} />
-                  <ScoreRow label="Execution" value={96} />
-                  <ScoreRow label="Risk" value={18} good />
-                  <div className="border-t border-zinc-800 pt-3 flex justify-between font-semibold">
-                    <span>AURA SCORE</span>
-                    <span className="text-brand-400 text-lg">88/100</span>
-                  </div>
-                </div>
-                <div className="bg-zinc-950 rounded-xl p-4 text-sm">
-                  <div className="text-zinc-500 text-xs mb-2">Evaluation</div>
-                  <div className="font-medium mb-3">
-                    High-quality SOL-related opportunity
-                  </div>
-                  <div className="text-zinc-500 text-xs mb-1">Your threshold</div>
-                  <div className="mb-3">75</div>
-                  <div className="text-emerald-400 font-medium">
-                    → Conditions met. Safety Engine cleared.
-                  </div>
-                </div>
-              </div>
             </section>
           </div>
 
-          {/* Right */}
           <div className="space-y-6">
             <section className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5">
               <h3 className="font-semibold mb-4 flex items-center gap-2">
@@ -325,21 +304,24 @@ export default function DashboardPage() {
             </section>
 
             <section className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5">
-              <h3 className="font-semibold mb-4">Recent AURA Decisions</h3>
-              <div className="space-y-4 text-sm">
-                <Decision action="BUY" score="88" detail="SOL opportunity · 2h ago" positive />
-                <Decision action="NO TRADE" score="61" detail="Low liquidity + high risk · 5h ago" />
-                <Decision action="REBALANCE" detail="Restored Reserve target · 1d ago" positive />
-                <Decision action="SNIPER SKIP" detail="Failed holder concentration · 1d ago" warn />
+              <h3 className="font-semibold mb-3">Network & RPC</h3>
+              <div className="space-y-2 text-sm text-zinc-400">
+                <div className="flex justify-between">
+                  <span>Network</span>
+                  <span className="text-zinc-200">{networkLabel}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>RPC</span>
+                  <span className="text-zinc-200">
+                    {isCustomRpc() ? "Custom (Helius etc.)" : "Public cluster"}
+                  </span>
+                </div>
               </div>
-            </section>
-
-            <section className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-5">
-              <h3 className="font-semibold mb-3">RPC Status</h3>
-              <p className="text-sm text-zinc-400">
-                {isCustomRpc()
-                  ? "Using custom RPC (Helius or other) via NEXT_PUBLIC_RPC_URL."
-                  : "Using public Solana RPC. For production, set NEXT_PUBLIC_RPC_URL to your Helius endpoint."}
+              <p className="text-xs text-zinc-500 mt-3">
+                Change network via{" "}
+                <code className="text-zinc-400">NEXT_PUBLIC_SOLANA_NETWORK</code>{" "}
+                in <code className="text-zinc-400">.env.local</code>. Use matching
+                Helius URL for best results.
               </p>
             </section>
           </div>
@@ -396,52 +378,6 @@ function PolicyBar({
           style={{ width: `${Math.min(current, 100)}%` }}
         />
       </div>
-    </div>
-  );
-}
-
-function ScoreRow({
-  label,
-  value,
-  good,
-}: {
-  label: string;
-  value: number;
-  good?: boolean;
-}) {
-  return (
-    <div className="flex justify-between">
-      <span className="text-zinc-500">{label}</span>
-      <span className={good ? "text-emerald-400" : ""}>{value}</span>
-    </div>
-  );
-}
-
-function Decision({
-  action,
-  score,
-  detail,
-  positive,
-  warn,
-}: {
-  action: string;
-  score?: string;
-  detail: string;
-  positive?: boolean;
-  warn?: boolean;
-}) {
-  const color = positive
-    ? "text-emerald-400"
-    : warn
-    ? "text-amber-400"
-    : "text-zinc-400";
-  return (
-    <div>
-      <div className="flex items-center gap-2 mb-0.5">
-        <span className={`font-medium ${color}`}>{action}</span>
-        {score && <span className="text-zinc-500 text-xs">Score {score}</span>}
-      </div>
-      <div className="text-zinc-400">{detail}</div>
     </div>
   );
 }

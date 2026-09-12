@@ -11,18 +11,19 @@ import {
   SolflareWalletAdapter,
   LedgerWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
-import { getRpcEndpoint } from "@/lib/rpc";
+import { getRpcEndpoint, getNetwork } from "@/lib/rpc";
 
 export function WalletContextProvider({ children }: { children: ReactNode }) {
   const endpoint = useMemo(() => getRpcEndpoint(), []);
+  const network = useMemo(() => getNetwork(), []);
 
   const wallets = useMemo(
     () => [
       new PhantomWalletAdapter(),
-      new SolflareWalletAdapter(),
+      new SolflareWalletAdapter({ network: network as any }),
       new LedgerWalletAdapter(),
     ],
-    []
+    [network]
   );
 
   return (

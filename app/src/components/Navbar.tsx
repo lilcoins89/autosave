@@ -4,11 +4,11 @@ import Link from "next/link";
 import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { usePathname } from "next/navigation";
+import { NetworkBadge } from "@/components/NetworkBadge";
 
 export function Navbar() {
   const { publicKey } = useWallet();
   const pathname = usePathname();
-
   const isApp = pathname?.startsWith("/dashboard");
 
   return (
@@ -35,33 +35,16 @@ export function Navbar() {
               >
                 Overview
               </Link>
-              <Link
-                href="/dashboard/policy"
-                className={`px-3 py-1.5 rounded-lg font-medium ${
-                  pathname === "/dashboard/policy"
-                    ? "bg-zinc-800 text-white"
-                    : "text-zinc-400 hover:text-white hover:bg-zinc-900"
-                }`}
-              >
-                Policy
-              </Link>
-              <Link
-                href="/dashboard/safety"
-                className={`px-3 py-1.5 rounded-lg font-medium ${
-                  pathname === "/dashboard/safety"
-                    ? "bg-zinc-800 text-white"
-                    : "text-zinc-400 hover:text-white hover:bg-zinc-900"
-                }`}
-              >
-                Safety
-              </Link>
             </nav>
           )}
         </div>
 
         <div className="flex items-center gap-3">
+          <div className="hidden sm:block">
+            <NetworkBadge />
+          </div>
           {publicKey && (
-            <div className="hidden sm:flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <div className="hidden lg:flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
               <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
               Safety Active
             </div>
