@@ -12,7 +12,7 @@ export function Navbar() {
   const isApp = pathname?.startsWith("/dashboard");
 
   return (
-    <header className="border-b border-[#1b3349] bg-[#07111f]/90 backdrop-blur sticky top-0 z-40">
+    <header aria-label="Primary navigation" className="border-b border-[#1b3349] bg-[#07111f]/90 backdrop-blur sticky top-0 z-40">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2 font-bold text-lg">
