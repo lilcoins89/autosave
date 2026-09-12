@@ -29,7 +29,7 @@ export function filterPool(
 
   // Brand-new pools under 8s are higher rug risk
   if (pool.ageSeconds < 8) {
-    reasons.push(`Pool too new (${pool.ageSeconds}s)");
+    reasons.push(`Pool too new (${pool.ageSeconds}s)`);
   }
 
   if (pool.holdersHint > 0 && pool.holdersHint < 30) {

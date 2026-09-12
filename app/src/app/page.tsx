@@ -5,223 +5,42 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { Navbar } from "@/components/Navbar";
 
+const pillars = [
+  { mark: "◎", eyebrow: "01 / CAPITAL POLICY", title: "Give every dollar a job.", copy: "Set your reserve, liquidity, AutoBuy, and opportunity targets. AURA keeps allocations aligned as markets move.", tone: "text-[#58d6c0]" },
+  { mark: "✦", eyebrow: "02 / AUTOBUY ENGINE", title: "Buy conviction, not candles.", copy: "Every opportunity is scored across liquidity, momentum, execution, and risk before a trade can happen.", tone: "text-[#8ba7ff]" },
+  { mark: "＋", eyebrow: "03 / SAFETY ENGINE", title: "Safety is the product.", copy: "Token checks, simulated execution, portfolio limits, take-profit, stop-loss, and a kill switch work together.", tone: "text-[#58d6c0]" },
+  { mark: "↗", eyebrow: "04 / OPPORTUNITY SNIPER", title: "Be early. Stay selective.", copy: "Watch new Solana launches without chasing noise. AURA acts only when score, liquidity, and safety agree.", tone: "text-[#f1c77b]" },
+];
+
 export default function HomePage() {
   const { connected } = useWallet();
-
-  return (
-    <>
-      <Navbar />
-
-      <section className="relative pt-24 pb-20 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(139,92,246,0.28),transparent)]" />
-        <div className="max-w-6xl mx-auto px-6 text-center relative z-10">
-          <div className="inline-flex items-center gap-2 rounded-full border border-brand-500/30 bg-brand-500/10 px-4 py-1.5 text-sm text-brand-300 mb-8">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            Solana-only · Powered by AURA · Non-custodial
+  return <>
+    <Navbar />
+    <main>
+      <section className="relative overflow-hidden border-b border-[#1b3349]">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(88,214,192,0.12),transparent_38%)]" />
+        <div className="relative mx-auto flex max-w-7xl flex-col items-center px-6 pb-24 pt-20 text-center sm:pt-28">
+          <div className="mb-8 inline-flex items-center gap-2 rounded-full border border-[#1b3349] bg-[#0b1a2b]/80 px-4 py-2 text-xs font-semibold uppercase tracking-[0.18em] text-[#a7b9ca]">
+            <span className="size-2 rounded-full bg-[#58d6c0] shadow-[0_0_12px_#58d6c0]" /> Solana native · non-custodial · AURA protected
           </div>
-
-          <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.08] mb-6">
-            Define your capital policy.
-            <br />
-            <span className="bg-gradient-to-r from-brand-400 via-indigo-400 to-cyan-400 bg-clip-text text-transparent">
-              AURA keeps it safe & working.
-            </span>
-          </h1>
-
-          <p className="text-lg sm:text-xl text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed">
-            Smart allocation, scored AutoBuy, a real Safety Engine, and an
-            Opportunity Sniper — built exclusively for Solana.
-          </p>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            {connected ? (
-              <Link
-                href="/dashboard"
-                className="w-full sm:w-auto inline-flex items-center justify-center rounded-full bg-brand-600 hover:bg-brand-500 text-white font-semibold px-8 py-4 text-base transition shadow-xl shadow-brand-600/30"
-              >
-                Open Dashboard
-              </Link>
-            ) : (
-              <div className="scale-110">
-                <WalletMultiButton />
-              </div>
-            )}
-            <a
-              href="#pillars"
-              className="w-full sm:w-auto inline-flex items-center justify-center rounded-full border border-zinc-700 hover:border-zinc-500 text-zinc-300 font-medium px-8 py-4 transition"
-            >
-              See the four pillars
-            </a>
+          <h1 className="max-w-5xl text-balance text-5xl font-semibold leading-[1.02] tracking-[-0.06em] text-[#f4f7fb] sm:text-7xl lg:text-8xl">Make your capital<br /><span className="text-[#58d6c0]">calm, active, and safe.</span></h1>
+          <p className="mt-8 max-w-2xl text-pretty text-base leading-7 text-[#8295a9] sm:text-xl">AutoSave gives your Solana capital a policy, a pulse, and a safety system — so you can compound without constantly watching the screen.</p>
+          <div className="mt-10 flex w-full flex-col items-center justify-center gap-3 sm:w-auto sm:flex-row">
+            {connected ? <Link href="/dashboard" className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#58d6c0] px-6 py-3.5 font-semibold text-[#07111f] transition hover:brightness-110 sm:w-auto">Open your workspace <span aria-hidden="true">→</span></Link> : <div className="[&_.wallet-adapter-button]:!rounded-xl [&_.wallet-adapter-button]:!bg-[#58d6c0] [&_.wallet-adapter-button]:!text-[#07111f]"><WalletMultiButton /></div>}
+            <a href="#pillars" className="inline-flex w-full items-center justify-center rounded-xl border border-[#1b3349] px-6 py-3.5 font-medium text-[#c2d0dc] transition hover:border-[#58d6c0]/60 hover:bg-[#0b1a2b] sm:w-auto">Explore the system</a>
+          </div>
+          <div className="mt-16 grid w-full max-w-3xl grid-cols-3 gap-3 text-left sm:gap-8">
+            <MiniMetric label="Network" value="Solana" /><MiniMetric label="Custody" value="You" /><MiniMetric label="Default" value="Paper first" />
           </div>
         </div>
       </section>
-
-      <section id="pillars" className="py-24 border-t border-zinc-900">
-        <div className="max-w-6xl mx-auto px-6">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              Four pillars of intelligent capital on Solana
-            </h2>
-            <p className="text-zinc-400 max-w-xl mx-auto">
-              Everything runs under AURA. Safety is never optional. Solana only.
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-2 gap-6">
-            <PillarCard
-              label="01 · SMART SAVE"
-              labelColor="text-brand-400"
-              title="Capital Policy Engine"
-              description="Deposit SOL or USDC. Define targets. AURA maintains them and protects the Reserve when risk rises."
-            >
-              <div className="bg-zinc-950 rounded-xl p-4 text-sm space-y-2 font-mono">
-                <Row label="Reserve" value="40%" />
-                <Row label="AutoBuy" value="25%" />
-                <Row label="Liquidity" value="20%" />
-                <Row label="Trading" value="10%" />
-                <Row label="Opportunity" value="5%" />
-              </div>
-            </PillarCard>
-
-            <PillarCard
-              label="02 · AUTOBUY ENGINE"
-              labelColor="text-cyan-400"
-              title="Opportunity Score, not timers"
-              description="Every potential buy on Solana is scored. Below your threshold → NO TRADE."
-            >
-              <div className="bg-zinc-950 rounded-xl p-4 text-sm font-mono space-y-1.5">
-                <Row label="Liquidity" value="92" />
-                <Row label="Volume" value="87" />
-                <Row label="Momentum" value="81" />
-                <Row label="Execution" value="96" />
-                <Row label="Risk" value="18" valueClass="text-emerald-400" />
-                <div className="border-t border-zinc-800 my-2" />
-                <div className="flex justify-between font-semibold">
-                  <span>AURA SCORE</span>
-                  <span className="text-brand-400">88/100</span>
-                </div>
-                <div className="text-emerald-400 text-xs mt-1">ACTION: BUY</div>
-              </div>
-            </PillarCard>
-
-            <PillarCard
-              label="03 · SAFETY ENGINE"
-              labelColor="text-emerald-400"
-              title="The heart of the product"
-              description="Token checks + execution simulation + portfolio limits. Kill Switch on breach."
-            >
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <Stat label="Daily Loss Limit" value="5%" />
-                <Stat label="Max Position" value="3%" />
-                <Stat label="Max Slippage" value="1%" />
-                <Stat label="Min Liquidity" value="$50k+" />
-              </div>
-            </PillarCard>
-
-            <PillarCard
-              label="04 · OPPORTUNITY SNIPER"
-              labelColor="text-amber-400"
-              title="Not a faster sniper. A smarter one."
-              description="Watches new Solana launches. Only acts when liquidity, score, and safety all agree."
-            />
-          </div>
-        </div>
+      <section id="pillars" className="mx-auto max-w-7xl px-6 py-24 sm:py-32">
+        <div className="mb-12 flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between"><div><p className="text-xs font-semibold uppercase tracking-[0.2em] text-[#58d6c0]">The operating system</p><h2 className="mt-3 max-w-xl text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">A better relationship with risk.</h2></div><p className="max-w-sm text-sm leading-6 text-[#8295a9]">One engine, four layers of intelligence. Every decision stays observable, reversible, and yours.</p></div>
+        <div className="grid gap-4 md:grid-cols-2">{pillars.map(({ mark, eyebrow, title, copy, tone }) => <article key={eyebrow} className="group rounded-2xl border border-[#1b3349] bg-[#0b1a2b]/70 p-7 transition hover:-translate-y-1 hover:border-[#58d6c0]/50 sm:p-9"><div className={`font-display text-2xl ${tone}`} aria-hidden="true">{mark}</div><p className={`mt-8 text-xs font-semibold tracking-[0.16em] ${tone}`}>{eyebrow}</p><h3 className="mt-3 text-2xl font-semibold tracking-[-0.03em]">{title}</h3><p className="mt-4 max-w-md text-sm leading-6 text-[#8295a9]">{copy}</p><div className="mt-8 flex items-center gap-2 text-xs font-semibold text-[#c2d0dc]"><span className="text-[#58d6c0]" aria-hidden="true">✓</span> Visible by default</div></article>)}</div>
       </section>
-
-      <section className="py-24 border-t border-zinc-900">
-        <div className="max-w-3xl mx-auto px-6 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-            Built exclusively for Solana
-          </h2>
-          <p className="text-zinc-400 mb-8">
-            No multi-chain complexity. Just intelligent capital management on
-            the network where speed and low fees actually matter.
-          </p>
-          {connected ? (
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center justify-center rounded-full bg-brand-600 hover:bg-brand-500 text-white font-semibold px-10 py-4 text-lg transition shadow-xl shadow-brand-600/30"
-            >
-              Go to Dashboard
-            </Link>
-          ) : (
-            <div className="inline-block scale-110">
-              <WalletMultiButton />
-            </div>
-          )}
-        </div>
-      </section>
-
-      <footer className="border-t border-zinc-900 py-12">
-        <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="flex items-center gap-2 font-bold">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-500 to-cyan-400 flex items-center justify-center text-white text-xs font-bold">
-              A
-            </div>
-            AutoSave <span className="text-brand-400 text-sm font-medium">AURA</span>
-          </div>
-          <div className="text-sm text-zinc-500">
-            © 2026 AutoSave. Solana-only. Non-custodial.
-          </div>
-          <a
-            href="https://github.com/lilcoins89/autosave"
-            className="text-sm text-zinc-400 hover:text-white transition"
-            target="_blank"
-            rel="noreferrer"
-          >
-            GitHub
-          </a>
-        </div>
-      </footer>
-    </>
-  );
+      <section className="border-y border-[#1b3349] bg-[#0b1a2b]/55"><div className="mx-auto flex max-w-4xl flex-col items-center px-6 py-24 text-center sm:py-28"><div className="font-display text-3xl text-[#58d6c0]" aria-hidden="true">◎</div><h2 className="mt-6 text-4xl font-semibold tracking-[-0.04em] sm:text-5xl">Your wallet. Your policy.<br /><span className="text-[#8295a9]">Your pace.</span></h2><p className="mt-6 max-w-xl leading-7 text-[#8295a9]">Start in paper mode, inspect every decision, then choose when — and how — to go live.</p>{connected ? <Link href="/dashboard" className="mt-8 inline-flex items-center gap-2 rounded-xl bg-[#58d6c0] px-6 py-3.5 font-semibold text-[#07111f]">Enter dashboard <span aria-hidden="true">→</span></Link> : <div className="mt-8 [&_.wallet-adapter-button]:!rounded-xl [&_.wallet-adapter-button]:!bg-[#58d6c0] [&_.wallet-adapter-button]:!text-[#07111f]"><WalletMultiButton /></div>}</div></section>
+    </main>
+    <footer className="mx-auto flex max-w-7xl flex-col gap-4 px-6 py-10 text-sm text-[#8295a9] sm:flex-row sm:items-center sm:justify-between"><div className="font-display font-semibold text-[#f4f7fb]">AutoSave <span className="text-[#58d6c0]">/ AURA</span></div><div>Solana-only · non-custodial · © 2026</div><a href="https://github.com/lilcoins89/autosave" target="_blank" rel="noreferrer" className="hover:text-[#f4f7fb]">View source</a></footer>
+  </>;
 }
-
-function PillarCard({
-  label,
-  labelColor,
-  title,
-  description,
-  children,
-}: {
-  label: string;
-  labelColor: string;
-  title: string;
-  description: string;
-  children?: React.ReactNode;
-}) {
-  return (
-    <div className="rounded-2xl border border-zinc-800 bg-zinc-900/50 p-8 transition hover:-translate-y-1 hover:shadow-xl hover:shadow-brand-900/20">
-      <div className={`${labelColor} font-semibold text-sm mb-3`}>{label}</div>
-      <h3 className="text-xl font-semibold mb-3">{title}</h3>
-      <p className="text-zinc-400 mb-5 leading-relaxed">{description}</p>
-      {children}
-    </div>
-  );
-}
-
-function Row({
-  label,
-  value,
-  valueClass = "",
-}: {
-  label: string;
-  value: string;
-  valueClass?: string;
-}) {
-  return (
-    <div className="flex justify-between">
-      <span className="text-zinc-500">{label}</span>
-      <span className={valueClass}>{value}</span>
-    </div>
-  );
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="bg-zinc-950 rounded-lg p-3">
-      <div className="text-zinc-500 text-xs mb-1">{label}</div>
-      <div className="font-semibold">{value}</div>
-    </div>
-  );
-}
+function MiniMetric({ label, value }: { label: string; value: string }) { return <div className="border-l border-[#1b3349] pl-3"><div className="text-[10px] uppercase tracking-[0.16em] text-[#8295a9]">{label}</div><div className="mt-1 text-sm font-semibold text-[#f4f7fb] sm:text-base">{value}</div></div>; }

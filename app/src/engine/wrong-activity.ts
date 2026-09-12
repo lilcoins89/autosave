@@ -45,7 +45,7 @@ export function detectWrongActivity(
       reason: `Liquidity drained ${(
         (1 - p.liquidityUsdNow / p.liquidityUsdAtEntry) *
         100
-      ).toFixed(0)}% — close",
+      ).toFixed(0)}% — close`,
     };
   }
 
@@ -57,7 +57,7 @@ export function detectWrongActivity(
       reason: `Price -${(
         (1 - p.markPriceUsd / p.peakPriceUsd) *
         100
-      ).toFixed(0)}% from peak — close",
+      ).toFixed(0)}% from peak — close`,
     };
   }
 
@@ -69,7 +69,7 @@ export function detectWrongActivity(
       reason: `Price collapsed ${(
         (1 - p.markPriceUsd / p.entryPriceUsd) *
         100
-      ).toFixed(0)}% from entry — close",
+      ).toFixed(0)}% from entry — close`,
     };
   }
 
@@ -77,7 +77,7 @@ export function detectWrongActivity(
     return {
       triggered: true,
       activity: "holder_dump",
-      reason: `Top holder ${p.topHolderPct}% — concentration risk close",
+      reason: `Top holder ${p.topHolderPct}% — concentration risk close`,
     };
   }
 
