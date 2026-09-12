@@ -1,18 +1,18 @@
 /**
  * Preset micro-compound strategy
- * Starting $10 → target $50 with strict risk controls (paper-first).
+ * Starting $50 paper allocation with strict risk controls (paper-first).
  */
 
 import { CapitalPolicy } from "@/engine/types";
 
 export const MICRO_STRATEGY = {
-  id: "micro_10_to_50",
-  label: "Micro Compound $10 → $50",
-  startingCapitalUsd: 10,
-  maxPerTradeUsd: 1,
-  maxLossPerTradeUsd: 0.2,
+  id: "paper_50",
+  label: "Paper Desk $50",
+  startingCapitalUsd: 50,
+  maxPerTradeUsd: 5,
+  maxLossPerTradeUsd: 1,
   targetEquityUsd: 50,
-  reserveUsd: 5,
+  reserveUsd: 25,
   /** Derived stop from $1 size and $0.20 max loss = 20% SL */
   stopLossPct: 20,
   takeProfitPct: 25,
@@ -22,11 +22,11 @@ export const MICRO_STRATEGY = {
 } as const;
 
 /**
- * Policy sized for $10 total with $5 hard reserve.
- * Deployable = $5 across opportunity/trading sleeves.
+ * Policy sized for a $50 paper allocation with a $25 hard reserve.
+ * Deployable = $25 across opportunity/trading sleeves.
  */
 export const MICRO_POLICY: CapitalPolicy = {
-  reservePct: 50, // $5 of $10
+  reservePct: 50, // $25 of $50
   autoBuyPct: 10,
   liquidityPct: 0,
   tradingPct: 15,

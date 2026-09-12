@@ -19,6 +19,8 @@ import { AuraEnginePanel } from "@/components/AuraEnginePanel";
 import { StartEngineButton } from "@/components/StartEngineButton";
 import { IntelligencePanel } from "@/components/IntelligencePanel";
 import { SolanaStatusCard } from "@/components/SolanaStatusCard";
+import { ReadOnlyWalletViewer } from "@/components/ReadOnlyWalletViewer";
+import { WalletLoginGate } from "@/components/WalletLoginGate";
 import { useSolanaBalances } from "@/hooks/useSolanaBalances";
 import { usePortfolioLedger } from "@/hooks/usePortfolioLedger";
 import { useAutoStrategies } from "@/hooks/useAutoStrategies";
@@ -393,13 +395,16 @@ export default function DashboardPage() {
     return (
       <>
         <Navbar />
-        <div className="min-h-[70vh] flex flex-col items-center justify-center gap-6 px-4">
-          <h1 className="text-xl sm:text-2xl font-bold text-center">Connect your Solana wallet</h1>
-          <p className="text-zinc-400 text-center max-w-md text-sm">
-            Then press <strong className="text-emerald-400">S</strong> to start paper trading.
-          </p>
-          <NetworkBadge showRpcHint />
-          <WalletMultiButton />
+        <div className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-10">
+          <div className="flex flex-col items-center justify-center gap-6">
+            <h1 className="text-xl text-center font-bold sm:text-2xl">Connect your Solana wallet</h1>
+            <p className="max-w-md text-center text-sm text-zinc-400">
+              Connect to sign transactions, or inspect any public address in read-only mode.
+            </p>
+            <NetworkBadge showRpcHint />
+            <WalletMultiButton />
+          </div>
+          <ReadOnlyWalletViewer />
         </div>
       </>
     );
@@ -411,7 +416,8 @@ export default function DashboardPage() {
   const pnl = ledger.realizedPnlUsd;
 
   return (
-    <>
+    <WalletLoginGate>
+      <>
       <Navbar />
       <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-8">
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -454,6 +460,9 @@ export default function DashboardPage() {
         <div className="mb-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
           <IntelligencePanel address={publicKey?.toBase58()} equity={displayEquity} mode={mode} running={aura.running} />
           <SolanaStatusCard address={publicKey?.toBase58()} />
+        </div>
+        <div className="mb-6">
+          <ReadOnlyWalletViewer compact />
         </div>
 
         {isPaper ? (
@@ -580,9 +589,10 @@ export default function DashboardPage() {
             </section>
           </div>
         </div>
-      </main>
-    </>
-  );
+        </main>
+      </>
+    </WalletLoginGate>
+    );
 }
 
 function Metric({

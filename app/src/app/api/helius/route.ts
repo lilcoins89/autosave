@@ -1,28 +1,85 @@
 import { NextRequest, NextResponse } from "next/server";
+import { PublicKey, Connection } from "@solana/web3.js";
+import { eq } from "drizzle-orm";
+import { db } from "@/lib/db";
+import { walletObservations } from "@/lib/db-schema";
+import { getNetwork, getRpcEndpoint } from "@/lib/rpc";
+import { SOLANAPYD_MINT, TRADING_WALLET_ADDRESS } from "@/lib/tradingConfig";
 
-const HELIUS_BASE = "https://api.helius.xyz";
+export const runtime = "nodejs";
+
+function jsonError(message: string, status: number) {
+  return NextResponse.json({ error: message }, { status });
+}
 
 export async function GET(request: NextRequest) {
-  const address = request.nextUrl.searchParams.get("address");
-  const apiKey = process.env.HELIUS_API_KEY;
-
-  if (!address) return NextResponse.json({ error: "Wallet address is required." }, { status: 400 });
-  if (!apiKey) return NextResponse.json({ error: "Helius is not configured." }, { status: 503 });
+  const address = request.nextUrl.searchParams.get("address")?.trim() || TRADING_WALLET_ADDRESS;
+  try {
+    new PublicKey(address);
+  } catch {
+    return jsonError("Wallet address is invalid.", 400);
+  }
 
   try {
-    const [balancesResponse, transactionsResponse] = await Promise.all([
-      fetch(`${HELIUS_BASE}/v0/addresses/${address}/balances?api-key=${apiKey}`, { next: { revalidate: 15 } }),
-      fetch(`${HELIUS_BASE}/v0/addresses/${address}/transactions?api-key=${apiKey}&limit=8`, { next: { revalidate: 15 } }),
+    const requestedNetwork = request.nextUrl.searchParams.get("network") || undefined;
+    const network = getNetwork(requestedNetwork);
+    const heliusKey = process.env.HELIUS_API_KEY;
+    const endpoint = process.env.NEXT_PUBLIC_RPC_URL?.trim()
+      || (heliusKey && network !== "testnet" ? `https://${network === "devnet" ? "devnet" : "mainnet"}.helius-rpc.com/?api-key=${heliusKey}` : getRpcEndpoint());
+    const connection = new Connection(endpoint, "confirmed");
+    const owner = new PublicKey(address);
+    const [balance, tokenAccounts, signatures] = await Promise.all([
+      connection.getBalance(owner, "confirmed"),
+      connection.getParsedTokenAccountsByOwner(owner, { programId: new PublicKey("TokenkegQfeZyiNwAJbNbGKPFXCWuBvf9Ss623VQ5DA") }, "confirmed"),
+      connection.getSignaturesForAddress(owner, { limit: 8 }, "confirmed"),
     ]);
 
-    if (!balancesResponse.ok || !transactionsResponse.ok) {
-      return NextResponse.json({ error: "Helius could not load wallet intelligence." }, { status: 502 });
-    }
+    const tokens = tokenAccounts.value.map(({ pubkey, account }) => {
+      const info = account.data.parsed.info;
+      return {
+        mint: info.mint as string,
+        amount: Number(info.tokenAmount.amount),
+        decimals: Number(info.tokenAmount.decimals),
+        uiAmount: Number(info.tokenAmount.uiAmount ?? 0),
+        symbol: info.mint as string,
+        account: pubkey.toBase58(),
+      };
+    }).filter((token) => token.amount > 0);
 
-    const balances = await balancesResponse.json();
-    const transactions = await transactionsResponse.json();
-    return NextResponse.json({ balances, transactions, provider: "helius" });
+    const pyd = tokens.find((token) => token.mint === SOLANAPYD_MINT) ?? null;
+
+    const transactions = signatures.map((signature) => ({
+      signature: signature.signature,
+      type: signature.err ? "failed" : "confirmed",
+      description: signature.err ? "Transaction failed" : "Confirmed transaction",
+      timestamp: signature.blockTime ?? undefined,
+    }));
+
+    await db.insert(walletObservations).values({
+      address,
+      balanceLamports: balance,
+      tokenCount: tokens.length,
+      transactionCount: transactions.length,
+      observedAt: new Date(),
+    }).onConflictDoUpdate({
+      target: walletObservations.address,
+      set: {
+        balanceLamports: balance,
+        tokenCount: tokens.length,
+        transactionCount: transactions.length,
+        observedAt: new Date(),
+      },
+    });
+
+    const observation = await db.select().from(walletObservations).where(eq(walletObservations.address, address)).limit(1);
+    return NextResponse.json({
+      balances: { nativeBalance: balance, tokens, tradingToken: pyd },
+      trading: { wallet: TRADING_WALLET_ADDRESS, tokenMint: SOLANAPYD_MINT, token: pyd },
+      transactions,
+      observation: observation[0] ?? null,
+      provider: "helius-rpc",
+    }, { headers: { "Cache-Control": "private, max-age=15" } });
   } catch {
-    return NextResponse.json({ error: "Helius request failed." }, { status: 502 });
+    return jsonError("Wallet data is unavailable right now.", 502);
   }
 }

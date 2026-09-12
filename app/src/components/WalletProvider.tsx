@@ -7,11 +7,9 @@ import {
 } from "@solana/wallet-adapter-react";
 import { AppProvider } from "@solana/connector/react";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
-import {
-  PhantomWalletAdapter,
-  SolflareWalletAdapter,
-  LedgerWalletAdapter,
-} from "@solana/wallet-adapter-wallets";
+import { PhantomWalletAdapter } from "@solana/wallet-adapter-phantom";
+import { SolflareWalletAdapter } from "@solana/wallet-adapter-solflare";
+import { LedgerWalletAdapter } from "@solana/wallet-adapter-ledger";
 import { getRpcEndpoint, getNetwork } from "@/lib/rpc";
 
 export function WalletContextProvider({ children }: { children: ReactNode }) {
