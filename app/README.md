@@ -1,8 +1,8 @@
-# AutoSave App (Next.js + Solana)
+# AutoSave App — Solana-only
 
-Real wallet integration, multi-network support, live balances, USD estimates on all networks, and a New Token Opportunity Monitor (good liquidity only).
+Paper/live trading, Jupiter swaps with safeguards, DCA, TP/SL, position PnL, auto sniper, copy trading, audit trail.
 
-## Quick Start
+## Quick start
 
 ```bash
 cd app
@@ -11,35 +11,39 @@ npm install
 npm run dev
 ```
 
-## Networks
-
 ```env
 NEXT_PUBLIC_SOLANA_NETWORK=mainnet-beta   # or devnet | testnet
 NEXT_PUBLIC_RPC_URL=https://mainnet.helius-rpc.com/?api-key=YOUR_KEY
 ```
 
-## Features
+## Feature map (this release)
 
-- Wallet connection (Phantom, Solflare, Ledger)
-- Mainnet / Devnet / Testnet
-- Live SOL + SPL token balances
-- **USD estimates enabled on all networks** (reference SOL price)
-- **New Token Monitor** — only surfaces launches that pass:
-  - Minimum liquidity (default $50k+)
-  - Minimum score
-  - Optional revoked mint/freeze authority requirement
-- Safety Engine UI + Kill Switch
-- Capital policy visualization
+| # | Feature | Status |
+|---|---------|--------|
+| 1 | Real tx execution + safeguards | Live path via Jupiter + preflight + retries; blocked by impact/slippage guards |
+| 2 | Jupiter routing / swaps | Quote + swap build; max slippage 1%, max impact 1.5% |
+| 3 | Automated DCA / savings | Schedules (daily/weekly/monthly), max budget, paper/live run |
+| 4 | Take-profit / stop-loss | Per-position TP/SL; auto-evaluated every 5s |
+| 5 | Position-level P&amp;L | Open positions + unrealized; closed trades + realized |
+| 6 | Paper / simulation mode | Default **Paper**; toggle to **Live** when ready |
+| 7 | Tx history + audit trail | Quotes, submits, success/fail, paper fills, DCA, TP/SL, safety blocks |
+| 8 | Failure / retry handling | `withRetry` on quotes and sends |
+| 9 | Richer opportunity scoring | Liquidity, volume, momentum, execution, authority/holder risk |
+| 10 | Mobile-first UX | Bottom nav, tighter spacing, touch-friendly controls |
 
-## Opportunity Monitor
+## Safety defaults (live)
 
-The monitor filters aggressively for **good liquidity only**. Low-liquidity and open-authority tokens are excluded by default.
+- Slippage: 100 bps (1%)
+- Max price impact: 1.5% (hard block)
+- Preflight enabled
+- Retries with exponential backoff
+- Paper mode recommended until you understand the flow
 
-Currently uses structured demo data so the UI and filters are fully usable. Replace `fetchOpportunities` inside `src/hooks/useTokenOpportunities.ts` with:
+## Important
 
-- Helius webhooks / enhanced transactions for new pools
-- Birdeye / DexScreener new pairs
-- Custom indexer on Raydium / Meteora / Orca pool creation
+- **Solana only**
+- Live swaps spend real funds — use Paper first
+- USDC mint in live path is mainnet USDC; use matching network + funds
 
 ## Scripts
 
