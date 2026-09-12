@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { getNetwork } from "@/lib/rpc";
 
 export interface TokenOpportunity {
   id: string;
@@ -15,7 +14,7 @@ export interface TokenOpportunity {
   mintAuthorityRevoked: boolean;
   freezeAuthorityRevoked: boolean;
   score: number; // simple 0-100 from available signals
-  source: "monitor";
+  source: "bags";
   detectedAt: Date;
 }
 
@@ -49,7 +48,7 @@ function generateDemoOpportunities(network: string): TokenOpportunity[] {
       mintAuthorityRevoked: true,
       freezeAuthorityRevoked: true,
       score: 84,
-      source: "monitor",
+      source: "bags",
     },
     {
       symbol: "DEPTH",
@@ -62,7 +61,7 @@ function generateDemoOpportunities(network: string): TokenOpportunity[] {
       mintAuthorityRevoked: true,
       freezeAuthorityRevoked: true,
       score: 71,
-      source: "monitor",
+      source: "bags",
     },
     {
       symbol: "THIN",
@@ -75,7 +74,7 @@ function generateDemoOpportunities(network: string): TokenOpportunity[] {
       mintAuthorityRevoked: false,
       freezeAuthorityRevoked: true,
       score: 41,
-      source: "monitor",
+      source: "bags",
     },
     {
       symbol: "SOLID",
@@ -88,7 +87,7 @@ function generateDemoOpportunities(network: string): TokenOpportunity[] {
       mintAuthorityRevoked: true,
       freezeAuthorityRevoked: true,
       score: 91,
-      source: "monitor",
+      source: "bags",
     },
     {
       symbol: "RISK",
@@ -101,7 +100,7 @@ function generateDemoOpportunities(network: string): TokenOpportunity[] {
       mintAuthorityRevoked: false, // will fail requireRevokedAuthorities
       freezeAuthorityRevoked: false,
       score: 55,
-      source: "monitor",
+      source: "bags",
     },
   ];
 
@@ -145,17 +144,10 @@ export function useTokenOpportunities(initialFilters?: Partial<OpportunityFilter
     setLoading(true);
     setError(null);
     try {
-      // TODO: Replace with real data source:
-      // - Helius webhooks / enhanced txs for new pools
-      // - Birdeye / DexScreener / Jupiter token lists
-      // - Custom indexer watching Raydium / Meteora / Orca pool creation
-      const network = getNetwork();
-      const raw = generateDemoOpportunities(network);
-
-      // Simulate network latency
-      await new Promise((r) => setTimeout(r, 400));
-
-      setAll(raw);
+      const response = await fetch("/api/bags/opportunities", { cache: "no-store" });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.message || "Bags token feed unavailable");
+      setAll((payload.candidates ?? []).map((candidate: TokenOpportunity & { detectedAt: string }) => ({ ...candidate, detectedAt: new Date(candidate.detectedAt) })));
       setLastUpdated(new Date());
     } catch (e) {
       setError(e instanceof Error ? e.message : "Failed to load opportunities");

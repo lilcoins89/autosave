@@ -38,7 +38,7 @@ export function OpportunityMonitor() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
         <div>
           <h2 className="text-lg font-semibold flex items-center gap-2">
-            <span className="text-amber-400">⚡</span> New Token Monitor
+            <span className="text-amber-400">⚡</span> Bags Token Monitor
           </h2>
           <p className="text-xs text-zinc-500 mt-0.5">
             Only tokens that pass liquidity & safety filters ·{" "}
@@ -174,9 +174,8 @@ export function OpportunityMonitor() {
 
       <p className="text-xs text-zinc-600 mt-4">
         Monitor filters for <strong className="text-zinc-500">good liquidity only</strong>.
-        Demo data is shown until a real indexer (Helius webhooks / pool creation
-        logs / Birdeye) is connected. Low-liquidity and open-authority tokens are
-        excluded by default.
+        Candidates are read server-side from Bags when configured. Low-liquidity and
+        open-authority tokens are excluded by default; execution remains paper-safe.
       </p>
     </section>
   );
