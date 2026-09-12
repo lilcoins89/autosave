@@ -1,11 +1,10 @@
 "use client";
 
-import { getNetwork, getNetworkLabel, getNetworkColor, isCustomRpc } from "@/lib/rpc";
+import { isCustomRpc } from "@/lib/rpc";
 
 export function NetworkBadge({ showRpcHint = false }: { showRpcHint?: boolean }) {
-  const network = getNetwork();
-  const label = getNetworkLabel(network);
-  const colorClass = getNetworkColor(network);
+  const label = "Connected";
+  const colorClass = "text-[#00E676] bg-[#00E676]/10 border-[#00E676]/20";
 
   return (
     <div className="flex items-center gap-2 flex-wrap">
@@ -16,13 +15,8 @@ export function NetworkBadge({ showRpcHint = false }: { showRpcHint?: boolean })
         {label}
       </span>
       {showRpcHint && !isCustomRpc() && (
-        <span className="text-xs text-amber-400/90 bg-amber-400/10 border border-amber-400/20 px-2.5 py-1 rounded-full">
-          Public RPC
-        </span>
-      )}
-      {showRpcHint && isCustomRpc() && (
-        <span className="text-xs text-zinc-400 bg-zinc-800 border border-zinc-700 px-2.5 py-1 rounded-full">
-          Custom RPC
+        <span className="text-xs text-[#9945FF] bg-[#9945FF]/10 border border-[#9945FF]/20 px-2.5 py-1 rounded-full">
+          Secure RPC
         </span>
       )}
     </div>

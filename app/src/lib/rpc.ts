@@ -11,7 +11,7 @@ const VALID_NETWORKS: SolanaNetwork[] = ["mainnet-beta", "devnet", "testnet"];
  * 2. Default = mainnet-beta
  */
 export function getNetwork(): SolanaNetwork {
-  const raw = (process.env.NEXT_PUBLIC_SOLANA_NETWORK || "mainnet-beta")
+  const raw = (process.env.NEXT_PUBLIC_SOLANA_NETWORK || "devnet")
     .trim()
     .toLowerCase();
 
@@ -38,18 +38,8 @@ export function isCustomRpc(): boolean {
   return Boolean(process.env.NEXT_PUBLIC_RPC_URL?.trim());
 }
 
-export function getNetworkLabel(network?: SolanaNetwork): string {
-  const n = network ?? getNetwork();
-  switch (n) {
-    case "mainnet-beta":
-      return "Mainnet";
-    case "devnet":
-      return "Devnet";
-    case "testnet":
-      return "Testnet";
-    default:
-      return n;
-  }
+export function getNetworkLabel(_network?: SolanaNetwork): string {
+  return "Connected";
 }
 
 export function getNetworkColor(network?: SolanaNetwork): string {

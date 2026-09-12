@@ -2,17 +2,18 @@
 
 import { FormEvent, useState } from "react";
 import { PublicKey } from "@solana/web3.js";
+import { TRADING_WALLET_ADDRESS, SOLANAPYD_MINT } from "@/lib/tradingConfig";
 
 type Token = { mint?: string; symbol?: string; amount?: number; decimals?: number; uiAmount?: number };
 type Transaction = { signature?: string; type?: string; description?: string; timestamp?: number };
-type HeliusData = { balances?: { nativeBalance?: number; tokens?: Token[] }; transactions?: Transaction[]; error?: string };
+type HeliusData = { balances?: { nativeBalance?: number; tokens?: Token[]; tradingToken?: Token | null }; transactions?: Transaction[]; error?: string };
 
 function shorten(value: string, size = 6) {
   return `${value.slice(0, size)}…${value.slice(-size)}`;
 }
 
 export function ReadOnlyWalletViewer({ compact = false }: { compact?: boolean }) {
-  const [address, setAddress] = useState("");
+  const [address, setAddress] = useState(TRADING_WALLET_ADDRESS);
   const [data, setData] = useState<HeliusData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -46,6 +47,7 @@ export function ReadOnlyWalletViewer({ compact = false }: { compact?: boolean })
   const nativeSol = ((data?.balances?.nativeBalance ?? 0) / 1_000_000_000).toFixed(4);
   const tokens = data?.balances?.tokens ?? [];
   const transactions = data?.transactions ?? [];
+  const tradingToken = data?.balances?.tradingToken ?? tokens.find((token) => token.mint === SOLANAPYD_MINT) ?? null;
 
   return (
     <section className={`rounded-2xl border border-[#1b3b2c] bg-[#0d1c16] p-4 ${compact ? "" : "sm:p-5"}`}>
@@ -73,6 +75,8 @@ export function ReadOnlyWalletViewer({ compact = false }: { compact?: boolean })
             <p className="mt-1 break-all font-mono text-xs text-[#e8fff3]">{shorten(address, 8)}</p>
             <p className="mt-4 text-[10px] uppercase tracking-wider text-[#8ba99a]">Native balance</p>
             <p className="mt-1 text-2xl font-semibold text-[#00E676]">{nativeSol} SOL</p>
+            <p className="mt-4 text-[10px] uppercase tracking-wider text-[#8ba99a]">Trading balance</p>
+            <p className="mt-1 text-xl font-semibold text-[#9945FF]">{tradingToken ? Number(tradingToken.uiAmount ?? 0).toLocaleString() : "0"} PYD</p>
             <p className="mt-1 text-xs text-[#8ba99a]">{tokens.length} token accounts · {transactions.length} recent transactions</p>
           </div>
           <div className="grid gap-4 sm:grid-cols-2">

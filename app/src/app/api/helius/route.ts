@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { walletObservations } from "@/lib/db-schema";
 import { getNetwork, getRpcEndpoint } from "@/lib/rpc";
+import { SOLANAPYD_MINT, TRADING_WALLET_ADDRESS } from "@/lib/tradingConfig";
 
 export const runtime = "nodejs";
 
@@ -12,8 +13,7 @@ function jsonError(message: string, status: number) {
 }
 
 export async function GET(request: NextRequest) {
-  const address = request.nextUrl.searchParams.get("address")?.trim();
-  if (!address) return jsonError("Wallet address is required.", 400);
+  const address = request.nextUrl.searchParams.get("address")?.trim() || TRADING_WALLET_ADDRESS;
   try {
     new PublicKey(address);
   } catch {
@@ -45,6 +45,8 @@ export async function GET(request: NextRequest) {
       };
     }).filter((token) => token.amount > 0);
 
+    const pyd = tokens.find((token) => token.mint === SOLANAPYD_MINT) ?? null;
+
     const transactions = signatures.map((signature) => ({
       signature: signature.signature,
       type: signature.err ? "failed" : "confirmed",
@@ -70,7 +72,8 @@ export async function GET(request: NextRequest) {
 
     const observation = await db.select().from(walletObservations).where(eq(walletObservations.address, address)).limit(1);
     return NextResponse.json({
-      balances: { nativeBalance: balance, tokens },
+      balances: { nativeBalance: balance, tokens, tradingToken: pyd },
+      trading: { wallet: TRADING_WALLET_ADDRESS, tokenMint: SOLANAPYD_MINT, token: pyd },
       transactions,
       observation: observation[0] ?? null,
       provider: "helius-rpc",
