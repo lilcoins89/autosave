@@ -66,7 +66,7 @@ export default function DashboardPage() {
 
   // Micro-strategy paper equity ($10 start)
   const [microActive, setMicroActive] = useState(false);
-  const [microEquity, setMicroEquity] = useState(MICRO_STRATEGY.startingCapitalUsd);
+  const [microEquity, setMicroEquity] = useState<number>(MICRO_STRATEGY.startingCapitalUsd);
   const [tradingSessionId, setTradingSessionId] = useState<string | null>(null);
   const [tradingConnectionState, setTradingConnectionState] = useState<"idle" | "connecting" | "connected" | "error">("idle");
   const [tradingConnectionMessage, setTradingConnectionMessage] = useState("");
@@ -192,7 +192,7 @@ export default function DashboardPage() {
           maxLossPerTradeUsd: MICRO_STRATEGY.maxLossPerTradeUsd,
           reserveUsd: MICRO_STRATEGY.reserveUsd,
           targetEquityUsd: MICRO_STRATEGY.targetEquityUsd,
-          automaticTpSl: MICRO_STRATEGY.automaticTpSl,
+          automaticTpSl: MICRO_STRATEGY.autoTpsl,
           killSwitchEnabled: MICRO_STRATEGY.killSwitchEnabled,
         },
       }),
