@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { WalletButton } from "@/components/WalletButton";
 import { Navbar } from "@/components/Navbar";
 import { NetworkBadge } from "@/components/NetworkBadge";
 import { ModeToggle } from "@/components/ModeToggle";
@@ -19,7 +18,6 @@ import { AuraEnginePanel } from "@/components/AuraEnginePanel";
 import { StartEngineButton } from "@/components/StartEngineButton";
 import { IntelligencePanel } from "@/components/IntelligencePanel";
 import { SolanaStatusCard } from "@/components/SolanaStatusCard";
-import { WalletLoginGate } from "@/components/WalletLoginGate";
 import { useSolanaBalances } from "@/hooks/useSolanaBalances";
 import { usePortfolioLedger } from "@/hooks/usePortfolioLedger";
 import { useAutoStrategies } from "@/hooks/useAutoStrategies";
@@ -345,23 +343,6 @@ export default function DashboardPage() {
     log("dca_run", `DCA ran ${s.label} $${s.amountUsd}`, { id });
   }
 
-  if (!connected) {
-    return (
-      <>
-        <Navbar />
-        <div className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-10">
-          <div className="flex flex-col items-center justify-center gap-6">
-            <h1 className="text-xl text-center font-bold sm:text-2xl">Connect your Solana wallet</h1>
-            <p className="max-w-md text-center text-sm text-zinc-400">
-              Connect your wallet to create, review, and sign live trading proposals.
-            </p>
-            <NetworkBadge showRpcHint />
-            <WalletButton />
-          </div>
-        </div>
-      </>
-    );
-  }
 
   const shortAddress = publicKey
     ? `${publicKey.toBase58().slice(0, 4)}...${publicKey.toBase58().slice(-4)}`
@@ -369,8 +350,8 @@ export default function DashboardPage() {
   const pnl = ledger.realizedPnlUsd;
 
   return (
-    <WalletLoginGate>
-      <>
+  <>
+
       <Navbar />
       <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-8">
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -539,9 +520,8 @@ export default function DashboardPage() {
           </div>
         </div>
         </main>
-      </>
-    </WalletLoginGate>
-    );
+  </>
+  );
 }
 
 function Metric({
