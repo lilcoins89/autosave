@@ -17,6 +17,7 @@ import { AuditTrailPanel } from "@/components/AuditTrailPanel";
 import { ExecutorPanel } from "@/components/ExecutorPanel";
 import { AuraEnginePanel } from "@/components/AuraEnginePanel";
 import { StartEngineButton } from "@/components/StartEngineButton";
+import { IntelligencePanel } from "@/components/IntelligencePanel";
 import { useSolanaBalances } from "@/hooks/useSolanaBalances";
 import { usePortfolioLedger } from "@/hooks/usePortfolioLedger";
 import { useAutoStrategies } from "@/hooks/useAutoStrategies";
@@ -66,6 +67,9 @@ export default function DashboardPage() {
   // Micro-strategy paper equity ($10 start)
   const [microActive, setMicroActive] = useState(false);
   const [microEquity, setMicroEquity] = useState(MICRO_STRATEGY.startingCapitalUsd);
+  const [tradingSessionId, setTradingSessionId] = useState<string | null>(null);
+  const [tradingConnectionState, setTradingConnectionState] = useState<"idle" | "connecting" | "connected" | "error">("idle");
+  const [tradingConnectionMessage, setTradingConnectionMessage] = useState("");
 
   const {
     sniper,
@@ -172,7 +176,40 @@ export default function DashboardPage() {
     onClose: onEngineClose,
   });
 
-  const handleStartS = useCallback(() => {
+  const handleStartS = useCallback(async () => {
+    setTradingConnectionState("connecting");
+    setTradingConnectionMessage("Validating safety policy with backend…");
+
+    const response = await fetch("/api/trading/session", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({
+        action: "start",
+        policy: {
+          paperMode: true,
+          startingCapitalUsd: MICRO_STRATEGY.startingCapitalUsd,
+          maxPerTradeUsd: MICRO_STRATEGY.maxPerTradeUsd,
+          maxLossPerTradeUsd: MICRO_STRATEGY.maxLossPerTradeUsd,
+          reserveUsd: MICRO_STRATEGY.reserveUsd,
+          targetEquityUsd: MICRO_STRATEGY.targetEquityUsd,
+          automaticTpSl: MICRO_STRATEGY.automaticTpSl,
+          killSwitchEnabled: MICRO_STRATEGY.killSwitchEnabled,
+        },
+      }),
+    }).catch(() => null);
+
+    const result = await response?.json().catch(() => null);
+    if (!response?.ok || !result?.ok) {
+      setTradingConnectionState("error");
+      setTradingConnectionMessage(result?.error ?? "Backend unavailable. Trading was not started.");
+      log("safety_block", result?.error ?? "Backend unavailable — trading was not started");
+      return;
+    }
+
+    setTradingSessionId(result.sessionId);
+    setTradingConnectionState("connected");
+    setTradingConnectionMessage(result.message);
+
     // 1. Force paper mode
     setMode("paper");
 
@@ -195,11 +232,20 @@ export default function DashboardPage() {
     );
   }, [aura, setMode, log]);
 
-  const handleStopS = useCallback(() => {
+  const handleStopS = useCallback(async () => {
     aura.stop();
     aura.emergencyCloseAll();
+    if (tradingSessionId) {
+      await fetch("/api/trading/session", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "kill", sessionId: tradingSessionId }),
+      }).catch(() => null);
+    }
+    setTradingConnectionState("idle");
+    setTradingConnectionMessage("Kill switch fired. Backend session stopped.");
     log("info", "S stopped — engine halted + kill switch fired");
-  }, [aura, log]);
+  }, [aura, log, tradingSessionId]);
 
   useEffect(() => {
     const id = setInterval(() => {
@@ -395,10 +441,17 @@ export default function DashboardPage() {
             running={aura.running}
             isPaper={isPaper}
             equityUsd={microActive ? microEquity : displayEquity}
-            onStart={handleStartS}
-            onStop={handleStopS}
-            onForcePaper={() => setMode("paper")}
-          />
+          onStart={handleStartS}
+          onStop={handleStopS}
+          onForcePaper={() => setMode("paper")}
+          sessionId={tradingSessionId}
+          connectionState={tradingConnectionState}
+          connectionMessage={tradingConnectionMessage}
+        />
+        </div>
+
+        <div className="mb-6">
+          <IntelligencePanel address={publicKey?.toBase58()} equity={displayEquity} mode={mode} running={aura.running} />
         </div>
 
         {isPaper ? (
