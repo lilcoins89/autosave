@@ -4,44 +4,49 @@
 
 Define your capital policy once. AURA maintains allocations, scores every opportunity, enforces hard safety limits, and only deploys capital when conditions are actually good.
 
-## Live Next.js App (Real Wallet Integration)
+## Run the App
 
 ```bash
-cd app
+git clone https://github.com/lilcoins89/autosave.git
+cd autosave/app
+cp .env.example .env.local
+# Add your Helius RPC URL to .env.local
 npm install
 npm run dev
 ```
 
-Then open **http://localhost:3000**
+Open **http://localhost:3000**
 
-- Connect Phantom / Solflare / Ledger
-- Full landing page + authenticated dashboard
-- Smart Save policy bars, Opportunity Score, Safety Engine, AURA decision log
+### Helius RPC (recommended)
 
-See [`app/README.md`](app/README.md) for details.
+1. Get a free API key at [helius.dev](https://helius.dev)
+2. In `app/.env.local`:
 
-## Static Prototype (no install)
+```env
+NEXT_PUBLIC_RPC_URL=https://mainnet.helius-rpc.com/?api-key=YOUR_KEY
+```
 
-The earlier static HTML version is still available under [`website/`](website/) for quick viewing.
+Without this, the app uses the public Solana RPC (fine for light local testing).
+
+### What is live today
+
+- Real wallet connection (Phantom, Solflare, Ledger)
+- Live **SOL balance** and **SPL token balances** (USDC, etc.)
+- Auto-refresh + manual refresh
+- Full AURA dashboard UI (policy, score, safety, decisions)
 
 ## Core Pillars
 
-1. **Smart Save** — Capital policy engine (Reserve / AutoBuy / Liquidity / Trading / Opportunity Reserve)
-2. **AutoBuy Engine** — Opportunity Score instead of blind timers
-3. **Safety Engine** — Token + Execution + Portfolio checks + Kill Switch
-4. **Opportunity Sniper** — Multi-condition autonomous detection
+1. **Smart Save** — Capital policy engine
+2. **AutoBuy Engine** — Opportunity Score
+3. **Safety Engine** — Checks + Kill Switch
+4. **Opportunity Sniper** — Multi-condition detection
 
-## Documentation
+## Docs
 
 - [PRD v2](docs/PRD.md)
 - [Architecture](docs/ARCHITECTURE.md)
-- [User Stories](docs/USER_STORIES.md)
-- [Roadmap](docs/ROADMAP.md)
-
-## Philosophy
-
-Speed without intelligence is just risk.  
-AURA puts intelligence and capital protection first.
+- [App README](app/README.md)
 
 ## License
 
