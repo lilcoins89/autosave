@@ -11,11 +11,10 @@ import {
   SolflareWalletAdapter,
   LedgerWalletAdapter,
 } from "@solana/wallet-adapter-wallets";
-import { clusterApiUrl } from "@solana/web3.js";
+import { getRpcEndpoint } from "@/lib/rpc";
 
 export function WalletContextProvider({ children }: { children: ReactNode }) {
-  // Use mainnet-beta or a custom RPC. For production prefer a paid RPC (Helius, QuickNode, etc.)
-  const endpoint = useMemo(() => clusterApiUrl("mainnet-beta"), []);
+  const endpoint = useMemo(() => getRpcEndpoint(), []);
 
   const wallets = useMemo(
     () => [
