@@ -17,6 +17,7 @@ import { AuditTrailPanel } from "@/components/AuditTrailPanel";
 import { ExecutorPanel } from "@/components/ExecutorPanel";
 import { AuraEnginePanel } from "@/components/AuraEnginePanel";
 import { StartEngineButton } from "@/components/StartEngineButton";
+import { IntelligencePanel } from "@/components/IntelligencePanel";
 import { useSolanaBalances } from "@/hooks/useSolanaBalances";
 import { usePortfolioLedger } from "@/hooks/usePortfolioLedger";
 import { useAutoStrategies } from "@/hooks/useAutoStrategies";
@@ -447,6 +448,10 @@ export default function DashboardPage() {
           connectionState={tradingConnectionState}
           connectionMessage={tradingConnectionMessage}
         />
+        </div>
+
+        <div className="mb-6">
+          <IntelligencePanel address={publicKey?.toBase58()} equity={displayEquity} mode={mode} running={aura.running} />
         </div>
 
         {isPaper ? (
