@@ -12,13 +12,12 @@ export default function HomePage() {
     <>
       <Navbar />
 
-      {/* Hero */}
       <section className="relative pt-24 pb-20 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_-20%,rgba(139,92,246,0.28),transparent)]" />
         <div className="max-w-6xl mx-auto px-6 text-center relative z-10">
           <div className="inline-flex items-center gap-2 rounded-full border border-brand-500/30 bg-brand-500/10 px-4 py-1.5 text-sm text-brand-300 mb-8">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            Powered by AURA · Non-custodial
+            Solana-only · Powered by AURA · Non-custodial
           </div>
 
           <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight leading-[1.08] mb-6">
@@ -31,7 +30,7 @@ export default function HomePage() {
 
           <p className="text-lg sm:text-xl text-zinc-400 max-w-2xl mx-auto mb-10 leading-relaxed">
             Smart allocation, scored AutoBuy, a real Safety Engine, and an
-            Opportunity Sniper that only fires when conditions actually agree.
+            Opportunity Sniper — built exclusively for Solana.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
@@ -57,15 +56,14 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Four Pillars */}
       <section id="pillars" className="py-24 border-t border-zinc-900">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center mb-16">
             <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-              Four pillars of intelligent capital
+              Four pillars of intelligent capital on Solana
             </h2>
             <p className="text-zinc-400 max-w-xl mx-auto">
-              Everything runs under AURA. Safety is never optional.
+              Everything runs under AURA. Safety is never optional. Solana only.
             </p>
           </div>
 
@@ -74,7 +72,7 @@ export default function HomePage() {
               label="01 · SMART SAVE"
               labelColor="text-brand-400"
               title="Capital Policy Engine"
-              description="Deposit once. Define targets. AURA maintains them and protects the Reserve when risk rises."
+              description="Deposit SOL or USDC. Define targets. AURA maintains them and protects the Reserve when risk rises."
             >
               <div className="bg-zinc-950 rounded-xl p-4 text-sm space-y-2 font-mono">
                 <Row label="Reserve" value="40%" />
@@ -89,7 +87,7 @@ export default function HomePage() {
               label="02 · AUTOBUY ENGINE"
               labelColor="text-cyan-400"
               title="Opportunity Score, not timers"
-              description="Every potential buy is scored. Below your threshold → NO TRADE."
+              description="Every potential buy on Solana is scored. Below your threshold → NO TRADE."
             >
               <div className="bg-zinc-950 rounded-xl p-4 text-sm font-mono space-y-1.5">
                 <Row label="Liquidity" value="92" />
@@ -116,7 +114,7 @@ export default function HomePage() {
                 <Stat label="Daily Loss Limit" value="5%" />
                 <Stat label="Max Position" value="3%" />
                 <Stat label="Max Slippage" value="1%" />
-                <Stat label="Min Liquidity" value="$100k" />
+                <Stat label="Min Liquidity" value="$50k+" />
               </div>
             </PillarCard>
 
@@ -124,21 +122,20 @@ export default function HomePage() {
               label="04 · OPPORTUNITY SNIPER"
               labelColor="text-amber-400"
               title="Not a faster sniper. A smarter one."
-              description="Only executes when multiple independent conditions, the Score, and Safety all agree. Uses Opportunity Reserve by default."
+              description="Watches new Solana launches. Only acts when liquidity, score, and safety all agree."
             />
           </div>
         </div>
       </section>
 
-      {/* CTA */}
       <section className="py-24 border-t border-zinc-900">
         <div className="max-w-3xl mx-auto px-6 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold mb-4">
-            Capital that behaves the way you defined
+            Built exclusively for Solana
           </h2>
           <p className="text-zinc-400 mb-8">
-            Set the policy. Set the risk limits. Let AURA enforce both while
-            hunting real opportunities.
+            No multi-chain complexity. Just intelligent capital management on
+            the network where speed and low fees actually matter.
           </p>
           {connected ? (
             <Link
@@ -164,7 +161,7 @@ export default function HomePage() {
             AutoSave <span className="text-brand-400 text-sm font-medium">AURA</span>
           </div>
           <div className="text-sm text-zinc-500">
-            © 2026 AutoSave. Non-custodial. Safety first.
+            © 2026 AutoSave. Solana-only. Non-custodial.
           </div>
           <a
             href="https://github.com/lilcoins89/autosave"
