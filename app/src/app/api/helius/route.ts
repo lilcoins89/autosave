@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import { PublicKey } from "@solana/web3.js";
 
 const HELIUS_BASE = "https://api.helius.xyz";
 
@@ -7,6 +8,12 @@ export async function GET(request: NextRequest) {
   const apiKey = process.env.HELIUS_API_KEY;
 
   if (!address) return NextResponse.json({ error: "Wallet address is required." }, { status: 400 });
+  if (address.length > 64) return NextResponse.json({ error: "Wallet address is invalid." }, { status: 400 });
+  try {
+    new PublicKey(address);
+  } catch {
+    return NextResponse.json({ error: "Wallet address is invalid." }, { status: 400 });
+  }
   if (!apiKey) return NextResponse.json({ error: "Helius is not configured." }, { status: 503 });
 
   try {
