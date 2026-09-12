@@ -4,16 +4,17 @@ import { useWallet } from "@solana/wallet-adapter-react";
 import { Navbar } from "@/components/Navbar";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { useSolanaBalances } from "@/hooks/useSolanaBalances";
+import { usePortfolioLedger } from "@/hooks/usePortfolioLedger";
 import { NetworkBadge } from "@/components/NetworkBadge";
 import { OpportunityMonitor } from "@/components/OpportunityMonitor";
+import { PortfolioEquity } from "@/components/PortfolioEquity";
 import {
   getNetwork,
   getNetworkLabel,
   isCustomRpc,
 } from "@/lib/rpc";
 
-// Approximate SOL price used for USD estimates on all networks.
-// Replace with a real price feed (Pyth / Birdeye / CoinGecko) later.
+// Reference SOL price for USD marks on all networks
 const SOL_PRICE_USD = 180;
 
 export default function DashboardPage() {
@@ -23,6 +24,12 @@ export default function DashboardPage() {
 
   const network = getNetwork();
   const networkLabel = getNetworkLabel(network);
+
+  const usdc = tokens.find((t) => t.symbol === "USDC");
+  const liveOnChainUsd =
+    sol !== null ? (sol ?? 0) * SOL_PRICE_USD + (usdc?.uiAmount ?? 0) : null;
+
+  const ledger = usePortfolioLedger(liveOnChainUsd, !loading && sol !== null);
 
   if (!connected) {
     return (
@@ -46,19 +53,17 @@ export default function DashboardPage() {
     ? `${publicKey.toBase58().slice(0, 4)}...${publicKey.toBase58().slice(-4)}`
     : "";
 
-  const usdc = tokens.find((t) => t.symbol === "USDC");
   const otherTokens = tokens.filter((t) => t.symbol !== "USDC").slice(0, 5);
 
-  // USD estimates enabled on ALL networks
-  const estimatedUsd =
-    (sol ?? 0) * SOL_PRICE_USD + (usdc?.uiAmount ?? 0);
+  // Display equity prefers ledger (starting + PnL); falls back to live mark
+  const displayEquity = ledger.equityUsd ?? liveOnChainUsd ?? 0;
+  const pnl = ledger.realizedPnlUsd;
 
   return (
     <>
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        {/* Header */}
         <div className="mb-8 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
           <div>
             <h1 className="text-2xl font-bold mb-1">Portfolio Overview</h1>
@@ -85,9 +90,9 @@ export default function DashboardPage() {
 
         {network !== "mainnet-beta" && (
           <div className="mb-6 rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-4 py-3 text-sm text-cyan-200">
-            You are on <strong>{networkLabel}</strong>. Balances are live from
-            this network. USD estimates use a reference SOL price (${SOL_PRICE_USD}) for
-            display purposes.
+            You are on <strong>{networkLabel}</strong>. Balances and equity flow
+            work the same as mainnet. USD uses a reference SOL price ($
+            {SOL_PRICE_USD}).
           </div>
         )}
 
@@ -97,19 +102,26 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Live Metrics — USD enabled on all networks */}
+        {/* Top metrics — equity reflects gains/losses */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           <MetricCard
-            label="Est. Portfolio (USD)"
+            label="Equity (after PnL)"
             value={
               loading && sol === null
                 ? "…"
-                : `$${estimatedUsd.toLocaleString(undefined, {
+                : `$${displayEquity.toLocaleString(undefined, {
                     maximumFractionDigits: 2,
                   })}`
             }
-            sub={`SOL @ $${SOL_PRICE_USD} + USDC · ${networkLabel}`}
-            subColor="text-zinc-500"
+            sub={
+              pnl === 0
+                ? "No realized PnL yet"
+                : `PnL ${pnl >= 0 ? "+" : ""}$${pnl.toLocaleString(undefined, {
+                    maximumFractionDigits: 2,
+                  })}`
+            }
+            subColor={pnl > 0 ? "text-emerald-400" : pnl < 0 ? "text-red-400" : "text-zinc-500"}
+            valueColor="text-brand-400"
           />
           <MetricCard
             label="SOL Balance"
@@ -126,7 +138,6 @@ export default function DashboardPage() {
               maximumFractionDigits: 0,
             })}`}
             subColor="text-zinc-500"
-            valueColor="text-brand-400"
           />
           <MetricCard
             label="USDC Balance"
@@ -144,17 +155,27 @@ export default function DashboardPage() {
             valueColor="text-emerald-400"
           />
           <MetricCard
-            label="Kill Switch"
-            value="OFF"
-            sub="All systems normal"
+            label="Realized PnL"
+            value={
+              `${pnl >= 0 ? "+" : ""}$${pnl.toLocaleString(undefined, {
+                maximumFractionDigits: 2,
+              })}`
+            }
+            sub="Gains add · Losses subtract"
             subColor="text-zinc-500"
-            valueColor="text-emerald-400"
+            valueColor={pnl >= 0 ? "text-emerald-400" : "text-red-400"}
           />
         </div>
 
         <div className="grid lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-6">
-            {/* NEW: Opportunity Monitor */}
+            {/* Equity ledger — core of gain/loss flow */}
+            <PortfolioEquity
+              ledger={ledger}
+              liveOnChainUsd={liveOnChainUsd}
+              networkLabel={networkLabel}
+            />
+
             <OpportunityMonitor />
 
             {/* Holdings */}
@@ -240,29 +261,6 @@ export default function DashboardPage() {
                     </div>
                   </div>
                 ))}
-
-                {!loading && tokens.length === 0 && (sol === null || sol === 0) && (
-                  <p className="text-sm text-zinc-500 py-4 text-center">
-                    No significant balances found on this wallet ({networkLabel}).
-                  </p>
-                )}
-              </div>
-            </section>
-
-            {/* Policy */}
-            <section className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-6">
-              <div className="flex items-center justify-between mb-5">
-                <h2 className="text-lg font-semibold">Smart Save · Capital Policy</h2>
-                <button className="text-sm text-brand-400 hover:text-brand-300">
-                  Edit Policy
-                </button>
-              </div>
-              <div className="space-y-4">
-                <PolicyBar label="Reserve" current={41.2} target={40} color="bg-brand-500" />
-                <PolicyBar label="AutoBuy" current={23.8} target={25} color="bg-cyan-500" />
-                <PolicyBar label="Liquidity" current={21.1} target={20} color="bg-emerald-500" />
-                <PolicyBar label="Trading" current={9.4} target={10} color="bg-amber-500" />
-                <PolicyBar label="Opportunity Reserve" current={4.5} target={5} color="bg-purple-500" />
               </div>
             </section>
           </div>
@@ -340,35 +338,6 @@ function MetricCard({
       <div className="text-sm text-zinc-400 mb-1">{label}</div>
       <div className={`text-2xl sm:text-3xl font-bold ${valueColor}`}>{value}</div>
       <div className={`text-xs mt-1 ${subColor}`}>{sub}</div>
-    </div>
-  );
-}
-
-function PolicyBar({
-  label,
-  current,
-  target,
-  color,
-}: {
-  label: string;
-  current: number;
-  target: number;
-  color: string;
-}) {
-  return (
-    <div>
-      <div className="flex justify-between text-sm mb-1.5">
-        <span className="text-zinc-400">{label}</span>
-        <span>
-          {current}% <span className="text-zinc-600">/ {target}%</span>
-        </span>
-      </div>
-      <div className="h-2 rounded-full bg-zinc-800 overflow-hidden">
-        <div
-          className={`h-full ${color} rounded-full transition-all`}
-          style={{ width: `${Math.min(current, 100)}%` }}
-        />
-      </div>
     </div>
   );
 }
