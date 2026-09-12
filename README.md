@@ -4,17 +4,32 @@
 
 Define your capital policy once. AURA maintains allocations, scores every opportunity, enforces hard safety limits, and only deploys capital when conditions are actually good.
 
-## Live Demo
+## Live Next.js App (Real Wallet Integration)
 
-- [Landing page](website/index.html)
-- [Dashboard](website/dashboard.html)
+```bash
+cd app
+npm install
+npm run dev
+```
 
-## Core Pillars (v2)
+Then open **http://localhost:3000**
+
+- Connect Phantom / Solflare / Ledger
+- Full landing page + authenticated dashboard
+- Smart Save policy bars, Opportunity Score, Safety Engine, AURA decision log
+
+See [`app/README.md`](app/README.md) for details.
+
+## Static Prototype (no install)
+
+The earlier static HTML version is still available under [`website/`](website/) for quick viewing.
+
+## Core Pillars
 
 1. **Smart Save** — Capital policy engine (Reserve / AutoBuy / Liquidity / Trading / Opportunity Reserve)
 2. **AutoBuy Engine** — Opportunity Score instead of blind timers
-3. **Safety Engine** — Token + Execution + Portfolio checks + Kill Switch (the heart of the product)
-4. **Opportunity Sniper** — Multi-condition autonomous detection, never reckless
+3. **Safety Engine** — Token + Execution + Portfolio checks + Kill Switch
+4. **Opportunity Sniper** — Multi-condition autonomous detection
 
 ## Documentation
 
