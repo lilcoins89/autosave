@@ -19,7 +19,7 @@ export default function HomePage() {
   return (
     <>
       <Navbar />
-      <main className="overflow-hidden bg-[#050b12] text-[#edf5f1]">
+      <main id="main-content" className="overflow-hidden bg-[#050b12] text-[#edf5f1]">
         <section className="relative border-b border-[#182733]">
           <div className="pointer-events-none absolute inset-0 opacity-40 [background-image:linear-gradient(rgba(98,230,213,0.06)_1px,transparent_1px),linear-gradient(90deg,rgba(98,230,213,0.06)_1px,transparent_1px)] [background-size:48px_48px]" />
           <div className="pointer-events-none absolute left-1/2 top-24 size-[620px] -translate-x-1/2 rounded-full border border-[#b7f34a]/10 shadow-[0_0_120px_rgba(183,243,74,0.08)]" />
