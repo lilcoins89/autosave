@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { WalletButton } from "@/components/WalletButton";
 import { Navbar } from "@/components/Navbar";
 import { NetworkBadge } from "@/components/NetworkBadge";
 import { ModeToggle } from "@/components/ModeToggle";
@@ -402,7 +402,7 @@ export default function DashboardPage() {
               Connect to sign transactions, or inspect any public address in read-only mode.
             </p>
             <NetworkBadge showRpcHint />
-            <WalletMultiButton />
+            <WalletButton />
           </div>
           <ReadOnlyWalletViewer />
         </div>

@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { WalletButton } from "@/components/WalletButton";
 import { usePathname } from "next/navigation";
 import { NetworkBadge } from "@/components/NetworkBadge";
 
@@ -26,7 +26,7 @@ export function Navbar() {
         <div className="flex items-center gap-3">
           <div className="hidden sm:block"><NetworkBadge /></div>
           {publicKey && <div className="hidden lg:flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20"><span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />Safety Active</div>}
-          <WalletMultiButton />
+          <WalletButton />
         </div>
       </div>
     </header>

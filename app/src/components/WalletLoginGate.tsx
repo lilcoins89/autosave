@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useWallet } from "@solana/wallet-adapter-react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { WalletButton } from "@/components/WalletButton";
 
 function toBase64(bytes: Uint8Array) {
   let value = "";
@@ -57,7 +57,7 @@ export function WalletLoginGate({ children }: { children: React.ReactNode }) {
       <div className="eyebrow text-[#00E676]">Private paper desk</div>
       <h1 className="font-serif text-4xl font-semibold tracking-tight text-[#e8fff3]">Sign in with your wallet.</h1>
       <p className="max-w-md text-sm leading-6 text-[#8ba99a]">Connect a Solana wallet and sign a one-time message. Your private key never enters or leaves the wallet.</p>
-      <WalletMultiButton />
+      <WalletButton />
       {connected && !signMessage && <p className="text-sm text-[#9945FF]">This wallet does not support message signing.</p>}
       {busy && <p className="text-xs uppercase tracking-[0.18em] text-[#8ba99a]">Waiting for signature</p>}
       {error && <p role="alert" className="text-sm text-red-300">{error}</p>}
