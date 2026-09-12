@@ -20,6 +20,7 @@ import { StartEngineButton } from "@/components/StartEngineButton";
 import { IntelligencePanel } from "@/components/IntelligencePanel";
 import { SolanaStatusCard } from "@/components/SolanaStatusCard";
 import { ReadOnlyWalletViewer } from "@/components/ReadOnlyWalletViewer";
+import { WalletLoginGate } from "@/components/WalletLoginGate";
 import { useSolanaBalances } from "@/hooks/useSolanaBalances";
 import { usePortfolioLedger } from "@/hooks/usePortfolioLedger";
 import { useAutoStrategies } from "@/hooks/useAutoStrategies";
@@ -415,7 +416,8 @@ export default function DashboardPage() {
   const pnl = ledger.realizedPnlUsd;
 
   return (
-    <>
+    <WalletLoginGate>
+      <>
       <Navbar />
       <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-8">
         <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -587,9 +589,10 @@ export default function DashboardPage() {
             </section>
           </div>
         </div>
-      </main>
-    </>
-  );
+        </main>
+      </>
+    </WalletLoginGate>
+    );
 }
 
 function Metric({
