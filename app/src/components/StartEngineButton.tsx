@@ -9,6 +9,9 @@ interface Props {
   onStart: () => void;
   onStop: () => void;
   onForcePaper: () => void;
+  sessionId: string | null;
+  connectionState: "idle" | "connecting" | "connected" | "error";
+  connectionMessage?: string;
 }
 
 export function StartEngineButton({
@@ -18,6 +21,9 @@ export function StartEngineButton({
   onStart,
   onStop,
   onForcePaper,
+  sessionId,
+  connectionState,
+  connectionMessage,
 }: Props) {
   const progress = Math.min(
     100,
@@ -50,7 +56,7 @@ export function StartEngineButton({
           }`}
           title={running ? "Stop engine" : "Start trading (Paper)"}
         >
-          {running ? "STOP" : "S"}
+          {running ? "STOP" : connectionState === "connecting" ? "…" : "S"}
         </button>
 
         <div className="flex-1 min-w-0">
@@ -67,17 +73,21 @@ export function StartEngineButton({
             >
               {isPaper ? "Paper required · active" : "Switching to Paper…"}
             </span>
+            <span className={`text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full ${connectionState === "connected" ? "bg-emerald-500/15 text-emerald-300" : connectionState === "error" ? "bg-red-500/15 text-red-300" : "bg-zinc-500/15 text-zinc-300"}`}>
+              {connectionState === "connected" ? "Backend connected" : connectionState === "connecting" ? "Connecting backend…" : connectionState === "error" ? "Backend blocked" : "Backend idle"}
+            </span>
             {running && (
               <span className="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-emerald-500/15 text-emerald-300 animate-pulse">
-                Live loop
+                Paper loop active
               </span>
             )}
           </div>
 
           <p className="text-xs text-zinc-400 mb-3">
-            Connects frontend → AURA engine. Starts in <strong>paper mode</strong> only.
+            Connects frontend → backend → AURA engine. Starts in <strong>paper mode</strong> only.
             Strategy arms automatically with the limits below.
           </p>
+          {connectionMessage && <p className={`mb-3 text-xs ${connectionState === "error" ? "text-red-300" : "text-emerald-300"}`}>{connectionMessage}{sessionId ? ` Session ${sessionId.slice(0, 8)}.` : ""}</p>}
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 text-xs mb-3">
             <Stat label="Starting capital" value={`$${MICRO_STRATEGY.startingCapitalUsd}`} />
