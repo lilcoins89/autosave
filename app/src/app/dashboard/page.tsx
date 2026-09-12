@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useWallet, useConnection } from "@solana/wallet-adapter-react";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import { Navbar } from "@/components/Navbar";
@@ -15,6 +15,7 @@ import { DcaPanel } from "@/components/DcaPanel";
 import { PositionsPanel } from "@/components/PositionsPanel";
 import { AuditTrailPanel } from "@/components/AuditTrailPanel";
 import { ExecutorPanel } from "@/components/ExecutorPanel";
+import { AuraEnginePanel } from "@/components/AuraEnginePanel";
 import { useSolanaBalances } from "@/hooks/useSolanaBalances";
 import { usePortfolioLedger } from "@/hooks/usePortfolioLedger";
 import { useAutoStrategies } from "@/hooks/useAutoStrategies";
@@ -23,6 +24,7 @@ import { usePositions } from "@/hooks/usePositions";
 import { useDcaSchedules } from "@/hooks/useDcaSchedules";
 import { useAuditTrail } from "@/hooks/useAuditTrail";
 import { useExecutor } from "@/hooks/useExecutor";
+import { useAuraEngine } from "@/hooks/useAuraEngine";
 import { getNetwork, getNetworkLabel, isCustomRpc } from "@/lib/rpc";
 import {
   getJupiterQuote,
@@ -34,6 +36,7 @@ import {
 } from "@/lib/jupiter";
 import { withRetry } from "@/lib/retry";
 import { VersionedTransaction } from "@solana/web3.js";
+import { RISK_PROFILES } from "@/engine/types";
 
 const SOL_PRICE_USD = 180;
 
@@ -81,6 +84,53 @@ export default function DashboardPage() {
 
   const { schedules, addSchedule, toggle, remove, markExecuted } = useDcaSchedules();
 
+  const displayEquity = ledger.equityUsd ?? liveOnChainUsd ?? 1000;
+
+  const onEngineEntry = useCallback(
+    (args: {
+      symbol: string;
+      mint: string;
+      amountUsd: number;
+      score: number;
+      source: "sniper" | "dca" | "copy" | "reinvest" | "paper";
+    }) => {
+      const entry = SOL_PRICE_USD;
+      const profile = RISK_PROFILES.balanced;
+      openPosition({
+        symbol: args.symbol,
+        mint: args.mint,
+        entryPriceUsd: entry,
+        quantity: args.amountUsd / entry,
+        markPriceUsd: entry,
+        stopLossPct: profile.defaultStopLossPct,
+        takeProfitPct: profile.defaultTakeProfitPct,
+        source: args.source === "reinvest" ? "paper" : args.source,
+      });
+      log(
+        args.source === "paper" || isPaper ? "paper_fill" : "swap_success",
+        `AURA entry ${args.symbol} score ${args.score} ~$${args.amountUsd.toFixed(2)}`
+      );
+    },
+    [openPosition, log, isPaper]
+  );
+
+  const onEngineClose = useCallback(
+    (args: { positionId: string; reason: string; pnlUsd: number }) => {
+      closePosition(args.positionId, args.reason);
+      if (args.pnlUsd >= 0) ledger.recordGain(args.pnlUsd, args.reason);
+      else ledger.recordLoss(Math.abs(args.pnlUsd), args.reason);
+      log("tp_sl", args.reason, { pnlUsd: args.pnlUsd });
+    },
+    [closePosition, ledger, log]
+  );
+
+  const aura = useAuraEngine({
+    equityUsd: displayEquity,
+    paper: isPaper,
+    onEntry: onEngineEntry,
+    onClose: onEngineClose,
+  });
+
   useEffect(() => {
     const id = setInterval(() => {
       const hits = evaluateRisk();
@@ -101,19 +151,18 @@ export default function DashboardPage() {
     source: "manual" | "sniper" | "copy" | "dca" | "paper";
   }) {
     if (!publicKey) return;
-    const maxSlippageBps = 100;
-    const maxPriceImpactPct = 1.5;
+    const maxSlippageBps = aura.profile.maxSlippageBps;
+    const maxPriceImpactPct = aura.profile.maxPriceImpactPct;
 
     if (isPaper) {
-      const entry = SOL_PRICE_USD;
       openPosition({
         symbol: opts.symbol,
         mint: opts.mint,
-        entryPriceUsd: entry,
-        quantity: opts.amountUsd / entry,
-        markPriceUsd: entry,
-        stopLossPct: 5,
-        takeProfitPct: 15,
+        entryPriceUsd: SOL_PRICE_USD,
+        quantity: opts.amountUsd / SOL_PRICE_USD,
+        markPriceUsd: SOL_PRICE_USD,
+        stopLossPct: aura.profile.defaultStopLossPct,
+        takeProfitPct: aura.profile.defaultTakeProfitPct,
         source: "paper",
       });
       log("paper_fill", `Paper buy ${opts.symbol} ~$${opts.amountUsd}`, opts);
@@ -121,7 +170,7 @@ export default function DashboardPage() {
     }
 
     try {
-      log("swap_quote", `Quoting ${opts.symbol} for ~$${opts.amountUsd} via ${executorLabel}`);
+      log("swap_quote", `Quoting ${opts.symbol} via ${executorLabel}`);
       const amountRaw = Math.round(opts.amountUsd * 1e6);
       const quote = await withRetry(
         () =>
@@ -134,20 +183,17 @@ export default function DashboardPage() {
         { retries: 2, onRetry: (n) => log("info", `Quote retry ${n}`) }
       );
       assertSwapSafe(quote, maxPriceImpactPct);
-
       const swapTxB64 = await buildJupiterSwapTransaction({
         quoteRaw: quote.raw,
         userPublicKey: publicKey.toBase58(),
       });
       const tx = VersionedTransaction.deserialize(Buffer.from(swapTxB64, "base64"));
-
       log("swap_submit", `Submitting via ${executorLabel}`);
 
-      // Warp / Jito / Default pluggable path
       if (kind === "warp" || kind === "jito") {
         const result = await execute(tx);
         if (!result.confirmed) {
-          log("swap_fail", result.error ?? "Executor failed", { ...opts, executor: kind });
+          log("swap_fail", result.error ?? "Executor failed", opts);
           return;
         }
         openPosition({
@@ -156,38 +202,33 @@ export default function DashboardPage() {
           entryPriceUsd: SOL_PRICE_USD,
           quantity: opts.amountUsd / SOL_PRICE_USD,
           markPriceUsd: SOL_PRICE_USD,
-          stopLossPct: 5,
-          takeProfitPct: 15,
+          stopLossPct: aura.profile.defaultStopLossPct,
+          takeProfitPct: aura.profile.defaultTakeProfitPct,
           source: opts.source,
         });
         log("swap_success", `Confirmed via ${executorLabel}`, opts, result.signature);
         return;
       }
 
-      // Default RPC path
       const sig = await withRetry(
         async () => {
-          const s = await sendTransaction(tx, connection, {
-            maxRetries: 2,
-            skipPreflight: false,
-          });
+          const s = await sendTransaction(tx, connection, { maxRetries: 2, skipPreflight: false });
           await connection.confirmTransaction(s, "confirmed");
           return s;
         },
         { retries: 2, onRetry: (n) => log("info", `Send retry ${n}`) }
       );
-
       openPosition({
         symbol: opts.symbol,
         mint: opts.mint,
         entryPriceUsd: SOL_PRICE_USD,
         quantity: opts.amountUsd / SOL_PRICE_USD,
         markPriceUsd: SOL_PRICE_USD,
-        stopLossPct: 5,
-        takeProfitPct: 15,
+        stopLossPct: aura.profile.defaultStopLossPct,
+        takeProfitPct: aura.profile.defaultTakeProfitPct,
         source: opts.source,
       });
-      log("swap_success", `Swap confirmed (default RPC)`, opts, sig);
+      log("swap_success", `Swap confirmed`, opts, sig);
     } catch (e) {
       const msg = e instanceof SwapGuardError ? e.message : String(e);
       log("swap_fail", msg, opts);
@@ -219,7 +260,7 @@ export default function DashboardPage() {
         <div className="min-h-[70vh] flex flex-col items-center justify-center gap-6 px-4">
           <h1 className="text-xl sm:text-2xl font-bold text-center">Connect your Solana wallet</h1>
           <p className="text-zinc-400 text-center max-w-md text-sm">
-            Non-custodial · Solana-only · Start in <strong>Paper</strong> mode to practice safely.
+            Non-custodial · Solana-only · Start in <strong>Paper</strong> mode.
           </p>
           <NetworkBadge showRpcHint />
           <WalletMultiButton />
@@ -231,7 +272,6 @@ export default function DashboardPage() {
   const shortAddress = publicKey
     ? `${publicKey.toBase58().slice(0, 4)}...${publicKey.toBase58().slice(-4)}`
     : "";
-  const displayEquity = ledger.equityUsd ?? liveOnChainUsd ?? 0;
   const pnl = ledger.realizedPnlUsd;
 
   return (
@@ -245,6 +285,7 @@ export default function DashboardPage() {
               {shortAddress}
               {lastUpdated && ` · ${lastUpdated.toLocaleTimeString()}`}
               {` · ${executorLabel}`}
+              {aura.running && " · AURA live"}
             </p>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -262,7 +303,7 @@ export default function DashboardPage() {
 
         {isPaper && (
           <div className="mb-4 rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-3 py-2 text-xs sm:text-sm text-cyan-200">
-            <strong>Paper mode</strong> — trades are simulated. Switch to Live only when ready.
+            <strong>Paper mode</strong> — simulated fills. AURA can still detect, score, TP/SL, and auto-close.
           </div>
         )}
 
@@ -275,6 +316,26 @@ export default function DashboardPage() {
           <Metric label="SOL" value={sol !== null ? `${sol.toLocaleString(undefined, { maximumFractionDigits: 4 })}` : "…"} sub={`≈ $${((sol ?? 0) * SOL_PRICE_USD).toFixed(0)}`} />
           <Metric label="USDC" value={usdc ? `$${usdc.uiAmount.toFixed(2)}` : "$0"} valueColor="text-emerald-400" />
           <Metric label="Unrealized" value={`${unrealizedPnl >= 0 ? "+" : ""}$${unrealizedPnl.toFixed(2)}`} valueColor={unrealizedPnl >= 0 ? "text-emerald-400" : "text-red-400"} />
+        </div>
+
+        <div className="mb-6">
+          <AuraEnginePanel
+            running={aura.running}
+            onStart={aura.start}
+            onStop={aura.stop}
+            onEmergency={aura.emergencyCloseAll}
+            riskProfile={aura.riskProfile}
+            setRiskProfile={aura.setRiskProfile}
+            policy={aura.policy}
+            setPolicy={aura.setPolicy}
+            autoSniper={aura.autoSniper}
+            setAutoSniper={aura.setAutoSniper}
+            autoReinvest={aura.autoReinvest}
+            setAutoReinvest={aura.setAutoReinvest}
+            reinvestPct={aura.reinvestPct}
+            setReinvestPct={aura.setReinvestPct}
+            events={aura.events}
+          />
         </div>
 
         <div className="grid lg:grid-cols-3 gap-4 sm:gap-6">
@@ -325,12 +386,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="space-y-4 sm:space-y-6">
-            <ExecutorPanel
-              kind={kind}
-              feeSol={feeSol}
-              onKindChange={setKind}
-              onFeeChange={setFeeSol}
-            />
+            <ExecutorPanel kind={kind} feeSol={feeSol} onKindChange={setKind} onFeeChange={setFeeSol} />
             <StrategyActivity events={strategyEvents} />
             <AuditTrailPanel entries={audit} />
             <section className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4 sm:p-5">
@@ -338,11 +394,16 @@ export default function DashboardPage() {
                 <span className="w-2 h-2 rounded-full bg-emerald-400" /> Safety
               </h3>
               <div className="space-y-2 text-sm">
-                <Row k="Max slippage" v="1%" />
-                <Row k="Max price impact" v="1.5%" />
+                <Row k="Profile" v={aura.profile.label} />
+                <Row k="Min score" v={String(aura.profile.minScore)} />
+                <Row k="SL / TP" v={`${aura.profile.defaultStopLossPct}% / ${aura.profile.defaultTakeProfitPct}%`} />
+                <Row k="Slippage" v={`${aura.profile.maxSlippageBps} bps`} />
                 <Row k="Executor" v={executorLabel} />
                 <Row k="Mode" v={mode} />
               </div>
+              <p className="text-xs text-zinc-500 mt-3">
+                Wrong-activity detector closes on liquidity drain, authority risk, dumps, and price collapse. TP locks gains automatically.
+              </p>
             </section>
             <section className="rounded-2xl border border-zinc-800 bg-zinc-900/40 p-4 sm:p-5 text-sm text-zinc-400">
               <div className="flex justify-between mb-1"><span>Network</span><span className="text-zinc-200">{networkLabel}</span></div>
