@@ -9,6 +9,9 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
+    "@solana-agent-kit/plugin-defi": "^2.0.8",
+    "@solana-agent-kit/plugin-misc": "^2.0.6",
+    "@solana-agent-kit/plugin-token": "^2.0.9",
     "@solana/connector": "^0.2.6",
     "@solana/wallet-adapter-base": "^0.9.23",
     "@solana/wallet-adapter-ledger": "^0.9.30",
@@ -25,6 +28,7 @@
     "pg": "^8.23.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "solana-agent-kit": "^2.0.10",
     "tweetnacl": "^1.0.3"
   },
   "devDependencies": {
