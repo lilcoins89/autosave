@@ -5,6 +5,10 @@
 @tailwind utilities;
 
 :root {
+  --dashboard-bg: #031014;
+  --dashboard-panel: #07191d;
+  --dashboard-line: #173238;
+  --dashboard-mint: #62efad;
   --foreground: #e8fff3;
   --background: #07100D;
   --surface: #0d1c16;

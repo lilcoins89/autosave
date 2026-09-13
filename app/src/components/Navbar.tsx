@@ -12,15 +12,17 @@ export function Navbar() {
   const isApp = pathname?.startsWith("/dashboard");
 
   return (
-    <header aria-label="Primary navigation" className="border-b border-[#1b3349] bg-[#07111f]/90 backdrop-blur sticky top-0 z-40">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+    <header aria-label="Primary navigation" className="sticky top-0 z-40 border-b border-[#173238] bg-[#031014]/90 shadow-[0_10px_40px_rgba(0,0,0,0.22)] backdrop-blur-xl">
+      <div className="mx-auto flex h-[70px] max-w-[1540px] items-center justify-between px-4 sm:px-6">
         <div className="flex items-center gap-6">
           <Link href="/" className="flex items-center gap-2 font-bold text-lg">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-brand-500 to-cyan-400 flex items-center justify-center text-white text-xs font-bold">A</div>
-            AutoSave <span className="text-brand-400 text-xs font-medium">AURA</span>
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-[#62efad] via-[#1ec89a] to-[#087d88] text-sm font-black text-[#031014] shadow-[0_0_24px_rgba(98,239,173,0.25)]">A</div>
+            <span className="text-base font-semibold tracking-tight text-white">AutoSave</span> <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#62efad]">Powered by AURA</span>
           </Link>
           <nav className="hidden items-center gap-1 text-sm sm:flex">
-            <Link href="/dashboard" className={`rounded-md px-3 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.12em] transition ${isApp && pathname === "/dashboard" ? "bg-[#b7f34a] text-[#07100b]" : "border border-[#29404b] text-[#b7c8cc] hover:border-[#62e6d5] hover:text-[#62e6d5]"}`}>Dashboard</Link>
+            <Link href="/dashboard" className={`rounded-lg px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.12em] transition ${isApp && pathname === "/dashboard" ? "bg-[#0d5c4b] text-[#82ffc0] shadow-[inset_0_0_20px_rgba(98,239,173,0.12)]" : "text-[#8eaaa7] hover:bg-[#0d2528] hover:text-[#d9f4ed]"}`}>Dashboard</Link>
+            <Link href="/dashboard#sniper" className="rounded-lg px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-[#8eaaa7] transition hover:bg-[#0d2528] hover:text-[#d9f4ed]">Trading Engine</Link>
+            <Link href="/dashboard#portfolio" className="rounded-lg px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-[#8eaaa7] transition hover:bg-[#0d2528] hover:text-[#d9f4ed]">Portfolio</Link>
           </nav>
         </div>
         <div className="flex items-center gap-3">

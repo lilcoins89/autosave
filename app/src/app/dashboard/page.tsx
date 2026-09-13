@@ -352,13 +352,16 @@ export default function DashboardPage() {
   return (
   <>
 
+      <div className="min-h-screen bg-[#031014] text-[#d9f4ed]">
       <Navbar />
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-8">
-        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <main className="mx-auto max-w-[1540px] px-3 py-4 sm:px-6 sm:py-6">
+        <div className="mb-5 flex flex-col gap-3 border-b border-[#173238] pb-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold">Portfolio</h1>
-            <p className="text-zinc-500 text-xs sm:text-sm">
-              {shortAddress}
+            <div className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#62efad]"><span className="h-2 w-2 rounded-full bg-[#62efad] shadow-[0_0_12px_#62efad]" /> AURA TRADING DESK</div>
+            <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">Welcome back, Trader</h1>
+            <p className="text-xs text-[#7fa09b] sm:text-sm">Your capital. Our intelligence. On Solana.</p>
+            <p className="mt-1 text-[10px] text-[#5e817c]">
+              {shortAddress || "Connect wallet for live balances"}
               {lastUpdated && ` · ${lastUpdated.toLocaleTimeString()}`}
               {aura.running && " · AURA live"}
             </p>
@@ -391,7 +394,7 @@ export default function DashboardPage() {
         />
         </div>
 
-        <div className="mb-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="mb-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
           <IntelligencePanel address={publicKey?.toBase58()} equity={displayEquity} mode={mode} running={aura.running} />
           <SolanaStatusCard address={publicKey?.toBase58()} />
         </div>
@@ -409,7 +412,7 @@ export default function DashboardPage() {
           <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</div>
         )}
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        <div id="portfolio" className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
           <Metric
             label={microActive ? "Micro equity" : "Equity"}
             value={`$${displayEquity.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
@@ -519,8 +522,9 @@ export default function DashboardPage() {
             </section>
           </div>
         </div>
-        </main>
-  </>
+      </main>
+      </div>
+    </>
   );
 }
 
