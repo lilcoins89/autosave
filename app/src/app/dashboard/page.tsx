@@ -1,8 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
-import { useWallet, useConnection } from "@solana/wallet-adapter-react";
-import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import { useWallet } from "@solana/wallet-adapter-react";
 import { Navbar } from "@/components/Navbar";
 import { NetworkBadge } from "@/components/NetworkBadge";
 import { ModeToggle } from "@/components/ModeToggle";
@@ -19,8 +18,6 @@ import { AuraEnginePanel } from "@/components/AuraEnginePanel";
 import { StartEngineButton } from "@/components/StartEngineButton";
 import { IntelligencePanel } from "@/components/IntelligencePanel";
 import { SolanaStatusCard } from "@/components/SolanaStatusCard";
-import { ReadOnlyWalletViewer } from "@/components/ReadOnlyWalletViewer";
-import { WalletLoginGate } from "@/components/WalletLoginGate";
 import { useSolanaBalances } from "@/hooks/useSolanaBalances";
 import { usePortfolioLedger } from "@/hooks/usePortfolioLedger";
 import { useAutoStrategies } from "@/hooks/useAutoStrategies";
@@ -31,15 +28,7 @@ import { useAuditTrail } from "@/hooks/useAuditTrail";
 import { useExecutor } from "@/hooks/useExecutor";
 import { useAuraEngine } from "@/hooks/useAuraEngine";
 import { getNetwork, getNetworkLabel, isCustomRpc } from "@/lib/rpc";
-import {
-  getJupiterQuote,
-  assertSwapSafe,
-  buildJupiterSwapTransaction,
-  NATIVE_SOL_MINT,
-  USDC_MINT_MAINNET,
-  SwapGuardError,
-} from "@/lib/jupiter";
-import { withRetry } from "@/lib/retry";
+import { NATIVE_SOL_MINT, USDC_MINT_MAINNET, SwapGuardError } from "@/lib/jupiter";
 import { VersionedTransaction } from "@solana/web3.js";
 import {
   MICRO_STRATEGY,
@@ -51,15 +40,15 @@ import {
 const SOL_PRICE_USD = 180;
 
 export default function DashboardPage() {
-  const { connected, publicKey, sendTransaction } = useWallet();
-  const { connection } = useConnection();
+  const { connected, publicKey, signTransaction } = useWallet();
+
   const { sol, tokens, loading, error, lastUpdated, refetch } = useSolanaBalances();
 
   const network = getNetwork();
   const networkLabel = getNetworkLabel(network);
   const { mode, setMode, isPaper } = useTradingMode();
   const { entries: audit, log } = useAuditTrail(mode);
-  const { kind, setKind, feeSol, setFeeSol, execute, executorLabel } = useExecutor();
+  const { kind, setKind, feeSol, setFeeSol } = useExecutor();
 
   const usdc = tokens.find((t) => t.symbol === "USDC");
   const liveOnChainUsd =
@@ -286,7 +275,6 @@ export default function DashboardPage() {
   }) {
     if (!publicKey) return;
     const maxSlippageBps = aura.profile.maxSlippageBps;
-    const maxPriceImpactPct = aura.profile.maxPriceImpactPct;
 
     // S-strategy / paper path
     if (isPaper || microActive) {
@@ -308,65 +296,29 @@ export default function DashboardPage() {
     }
 
     try {
-      log("swap_quote", `Quoting ${opts.symbol} via ${executorLabel}`);
-      const amountRaw = Math.round(opts.amountUsd * 1e6);
-      const quote = await withRetry(
-        () =>
-          getJupiterQuote({
-            inputMint: USDC_MINT_MAINNET,
-            outputMint: opts.mint === "SOL" ? NATIVE_SOL_MINT : opts.mint,
-            amount: amountRaw,
-            slippageBps: maxSlippageBps,
-          }),
-        { retries: 2, onRetry: (n) => log("info", `Quote retry ${n}`) }
-      );
-      assertSwapSafe(quote, maxPriceImpactPct);
-      const swapTxB64 = await buildJupiterSwapTransaction({
-        quoteRaw: quote.raw,
-        userPublicKey: publicKey.toBase58(),
+      if (!signTransaction) throw new Error("Connected wallet cannot sign transactions.");
+      log("swap_quote", `Creating live proposal via backend on ${network}`);
+      const idempotencyKey = `${publicKey.toBase58()}-${Date.now()}-${crypto.randomUUID()}`;
+      const proposalResponse = await fetch("/api/trading/proposal", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ walletAddress: publicKey.toBase58(), network, inputMint: USDC_MINT_MAINNET, outputMint: opts.mint === "SOL" ? NATIVE_SOL_MINT : opts.mint, amountRaw: Math.round(opts.amountUsd * 1e6), slippageBps: maxSlippageBps, idempotencyKey }),
       });
-      const tx = VersionedTransaction.deserialize(Buffer.from(swapTxB64, "base64"));
-      log("swap_submit", `Submitting via ${executorLabel}`);
-
-      if (kind === "warp" || kind === "jito") {
-        const result = await execute(tx);
-        if (!result.confirmed) {
-          log("swap_fail", result.error ?? "Executor failed", opts);
-          return;
-        }
-        openPosition({
-          symbol: opts.symbol,
-          mint: opts.mint,
-          entryPriceUsd: SOL_PRICE_USD,
-          quantity: opts.amountUsd / SOL_PRICE_USD,
-          markPriceUsd: SOL_PRICE_USD,
-          stopLossPct: MICRO_STRATEGY.stopLossPct,
-          takeProfitPct: MICRO_STRATEGY.takeProfitPct,
-          source: opts.source,
-        });
-        log("swap_success", `Confirmed via ${executorLabel}`, opts, result.signature);
-        return;
-      }
-
-      const sig = await withRetry(
-        async () => {
-          const s = await sendTransaction(tx, connection, { maxRetries: 2, skipPreflight: false });
-          await connection.confirmTransaction(s, "confirmed");
-          return s;
-        },
-        { retries: 2, onRetry: (n) => log("info", `Send retry ${n}`) }
-      );
-      openPosition({
-        symbol: opts.symbol,
-        mint: opts.mint,
-        entryPriceUsd: SOL_PRICE_USD,
-        quantity: opts.amountUsd / SOL_PRICE_USD,
-        markPriceUsd: SOL_PRICE_USD,
-        stopLossPct: MICRO_STRATEGY.stopLossPct,
-        takeProfitPct: MICRO_STRATEGY.takeProfitPct,
-        source: opts.source,
+      const proposalPayload = await proposalResponse.json();
+      if (!proposalResponse.ok) throw new Error(proposalPayload.error ?? "Proposal rejected by live risk engine.");
+      const proposal = proposalPayload.proposal;
+      const tx = VersionedTransaction.deserialize(Buffer.from(proposal.serializedTransaction, "base64"));
+      log("swap_submit", "Reviewing live proposal in connected wallet");
+      const signed = await signTransaction(tx);
+      const broadcastResponse = await fetch("/api/trading/broadcast", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ walletAddress: publicKey.toBase58(), network, idempotencyKey, proposalHash: proposal.proposalHash, signedTransaction: Buffer.from(signed.serialize()).toString("base64") }),
       });
-      log("swap_success", `Swap confirmed`, opts, sig);
+      const result = await broadcastResponse.json();
+      if (!broadcastResponse.ok || result.status !== "confirmed") throw new Error(result.error ?? "Live swap was not confirmed.");
+      openPosition({ symbol: opts.symbol, mint: opts.mint, entryPriceUsd: SOL_PRICE_USD, quantity: opts.amountUsd / SOL_PRICE_USD, markPriceUsd: SOL_PRICE_USD, stopLossPct: MICRO_STRATEGY.stopLossPct, takeProfitPct: MICRO_STRATEGY.takeProfitPct, source: opts.source });
+      log("swap_success", `Confirmed via backend on ${network}`, opts, result.signature);
     } catch (e) {
       const msg = e instanceof SwapGuardError ? e.message : String(e);
       log("swap_fail", msg, opts);
@@ -391,24 +343,6 @@ export default function DashboardPage() {
     log("dca_run", `DCA ran ${s.label} $${s.amountUsd}`, { id });
   }
 
-  if (!connected) {
-    return (
-      <>
-        <Navbar />
-        <div className="mx-auto flex max-w-3xl flex-col gap-6 px-4 py-10">
-          <div className="flex flex-col items-center justify-center gap-6">
-            <h1 className="text-xl text-center font-bold sm:text-2xl">Connect your Solana wallet</h1>
-            <p className="max-w-md text-center text-sm text-zinc-400">
-              Connect to sign transactions, or inspect any public address in read-only mode.
-            </p>
-            <NetworkBadge showRpcHint />
-            <WalletMultiButton />
-          </div>
-          <ReadOnlyWalletViewer />
-        </div>
-      </>
-    );
-  }
 
   const shortAddress = publicKey
     ? `${publicKey.toBase58().slice(0, 4)}...${publicKey.toBase58().slice(-4)}`
@@ -416,15 +350,18 @@ export default function DashboardPage() {
   const pnl = ledger.realizedPnlUsd;
 
   return (
-    <WalletLoginGate>
-      <>
+  <>
+
+      <div className="min-h-screen bg-[#031014] text-[#d9f4ed]">
       <Navbar />
-      <main className="max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-8">
-        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <main className="mx-auto max-w-[1540px] px-3 py-4 sm:px-6 sm:py-6">
+        <div className="mb-5 flex flex-col gap-3 border-b border-[#173238] pb-5 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold">Portfolio</h1>
-            <p className="text-zinc-500 text-xs sm:text-sm">
-              {shortAddress}
+            <div className="mb-2 flex items-center gap-2 text-[10px] font-semibold uppercase tracking-[0.24em] text-[#62efad]"><span className="h-2 w-2 rounded-full bg-[#62efad] shadow-[0_0_12px_#62efad]" /> AURA TRADING DESK</div>
+            <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">Welcome back, Trader</h1>
+            <p className="text-xs text-[#7fa09b] sm:text-sm">Your capital. Our intelligence. On Solana.</p>
+            <p className="mt-1 text-[10px] text-[#5e817c]">
+              {shortAddress || "Connect wallet for live balances"}
               {lastUpdated && ` · ${lastUpdated.toLocaleTimeString()}`}
               {aura.running && " · AURA live"}
             </p>
@@ -457,14 +394,10 @@ export default function DashboardPage() {
         />
         </div>
 
-        <div className="mb-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_320px]">
+        <div className="mb-6 grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
           <IntelligencePanel address={publicKey?.toBase58()} equity={displayEquity} mode={mode} running={aura.running} />
           <SolanaStatusCard address={publicKey?.toBase58()} />
         </div>
-        <div className="mb-6">
-          <ReadOnlyWalletViewer compact />
-        </div>
-
         {isPaper ? (
           <div className="mb-4 rounded-xl border border-cyan-500/30 bg-cyan-500/10 px-3 py-2 text-xs sm:text-sm text-cyan-200">
             <strong>Paper mode</strong> — simulated fills only. Use this workspace to tune policy and inspect every decision before going live.
@@ -479,7 +412,7 @@ export default function DashboardPage() {
           <div className="mb-4 rounded-xl border border-red-500/30 bg-red-500/10 px-3 py-2 text-sm text-red-300">{error}</div>
         )}
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        <div id="portfolio" className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
           <Metric
             label={microActive ? "Micro equity" : "Equity"}
             value={`$${displayEquity.toLocaleString(undefined, { maximumFractionDigits: 2 })}`}
@@ -589,10 +522,10 @@ export default function DashboardPage() {
             </section>
           </div>
         </div>
-        </main>
-      </>
-    </WalletLoginGate>
-    );
+      </main>
+      </div>
+    </>
+  );
 }
 
 function Metric({

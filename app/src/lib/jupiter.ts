@@ -31,6 +31,21 @@ export class SwapGuardError extends Error {
 }
 
 /** Fetch a Jupiter quote */
+async function fetchWithRetry(input: RequestInfo | URL, init?: RequestInit, attempts = 3): Promise<Response> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    try {
+      const response = await fetch(input, init);
+      if (response.ok || response.status < 500 || attempt === attempts - 1) return response;
+    } catch (error) {
+      lastError = error;
+      if (attempt === attempts - 1) throw error;
+    }
+    await new Promise((resolve) => setTimeout(resolve, 250 * 2 ** attempt));
+  }
+  throw lastError instanceof Error ? lastError : new Error("Request failed");
+}
+
 export async function getJupiterQuote(
   params: JupiterQuoteParams
 ): Promise<JupiterQuoteResult> {
@@ -40,7 +55,7 @@ export async function getJupiterQuote(
   url.searchParams.set("amount", String(params.amount));
   url.searchParams.set("slippageBps", String(params.slippageBps));
 
-  const res = await fetch(url.toString());
+  const res = await fetchWithRetry(url.toString());
   if (!res.ok) {
     const text = await res.text();
     throw new Error(`Jupiter quote failed: ${res.status} ${text}`);
@@ -81,7 +96,7 @@ export async function buildJupiterSwapTransaction(opts: {
   userPublicKey: string;
   wrapAndUnwrapSol?: boolean;
 }): Promise<string> {
-  const res = await fetch(JUPITER_SWAP, {
+  const res = await fetchWithRetry(JUPITER_SWAP, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

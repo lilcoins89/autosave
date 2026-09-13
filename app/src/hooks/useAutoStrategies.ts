@@ -167,43 +167,39 @@ export function useAutoStrategies() {
     }));
   }, []);
 
-  /** Demo: simulate automatic sniper decision */
-  const simulateSniperTick = useCallback(() => {
+  const simulateSniperTick = useCallback(async () => {
     if (!sniper.enabled) {
       pushEvent("sniper_skip", "Sniper disabled · no action");
       return;
     }
-    const score = 70 + Math.floor(Math.random() * 25);
-    const liq = 40_000 + Math.floor(Math.random() * 200_000);
-    if (score >= sniper.minScore && liq >= sniper.minLiquidityUsd) {
-      pushEvent(
-        "sniper_buy",
-        `Auto-bought new token · score ${score} · liq $${(liq / 1000).toFixed(0)}k · max $${sniper.maxPositionUsd}`
-      );
-    } else {
-      pushEvent(
-        "sniper_skip",
-        `Skipped · score ${score} / liq $${(liq / 1000).toFixed(0)}k (filters not met)`
-      );
+
+    try {
+      const response = await fetch("/api/bags/opportunities", { cache: "no-store" });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.message || "Token feed unavailable");
+      const candidate = payload.candidates?.[0];
+      if (!candidate) {
+        pushEvent("sniper_skip", "No live token candidate passed the feed filters");
+        return;
+      }
+      const score = Number(candidate.score ?? 0);
+      const liquidity = Number(candidate.liquidityUsd ?? 0);
+      if (score >= sniper.minScore && liquidity >= sniper.minLiquidityUsd) {
+        pushEvent("sniper_buy", `Paper entry queued · ${candidate.symbol || candidate.mint} · score ${score} · liquidity $${(liquidity / 1000).toFixed(0)}k · max $${sniper.maxPositionUsd}`);
+      } else {
+        pushEvent("sniper_skip", `Skipped ${candidate.symbol || candidate.mint} · score ${score} / liquidity $${(liquidity / 1000).toFixed(0)}k`);
+      }
+    } catch (error) {
+      pushEvent("sniper_skip", error instanceof Error ? error.message : "Token feed unavailable");
     }
   }, [sniper, pushEvent]);
 
-  /** Demo: simulate copy of a followed wallet */
   const simulateCopyTick = useCallback(() => {
     if (!copy.enabled || copy.wallets.filter((w) => w.enabled).length === 0) {
       pushEvent("copy_skip", "Copy trading off or no wallets enabled");
       return;
     }
-    const active = copy.wallets.filter((w) => w.enabled);
-    const target = active[Math.floor(Math.random() * active.length)];
-    const size = Math.min(
-      copy.maxPerTradeUsd,
-      (copy.maxCopyBudgetUsd * target.allocationPct) / 100
-    );
-    pushEvent(
-      "copy_trade",
-      `Copied ${target.label} · $${size.toFixed(0)} · ${target.address.slice(0, 4)}...${target.address.slice(-4)}`
-    );
+    pushEvent("copy_skip", "Copy execution waits for a verified wallet activity event");
   }, [copy, pushEvent]);
 
   return {
